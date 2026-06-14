@@ -66,12 +66,22 @@ export class SelectionPopover {
 
   setMode(mode: ViewMode): void {
     if (mode === this.mode) return;
+    // Preserve any text the user has typed into the note input before re-rendering
+    const savedNoteText = this.noteExpanded
+      ? (this.el.querySelector(".mae-popover-note-input") as HTMLInputElement | null)?.value ?? ""
+      : "";
     this.mode = mode;
     // Mode changed → DOM is stale, force re-render on the next show().
     this.renderedMode = null;
     this.noteExpanded = false;
     this.cleanupPendingStrike();
-    if (this.current) this.render();
+    if (this.current) {
+      this.render();
+      // Re-expand note area with the saved text if there was any
+      if (savedNoteText) {
+        this.expandNoteAreaWithText(savedNoteText, this.selectedColor);
+      }
+    }
   }
 
   /** Show popover for a given selection. Returns false if there is no real
