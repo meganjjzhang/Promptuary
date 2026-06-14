@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://unpkg.com" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.7.2/js/all.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    * {
+      scrollbar-width: none;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+  </style>
+</head>
+
+<body class="bg-[#1e1e2e] min-h-screen flex items-center justify-center p-6">
+<link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style type="text/tailwindcss">
+  @theme {
+    --color-surface: #262637;
+    --color-surface-hover: #2e2e42;
+    --color-border: #363649;
+    --color-text-primary: #cdd6f4;
+    --color-text-muted: #6c7086;
+    --color-bg-base: #1e1e2e;
+    --color-accent: #a78bfa;
+    --color-accent-dim: rgba(167, 139, 250, 0.15);
+  }
+</style>
+
+<style>
+  body { font-family: 'DM Sans', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes dot-pulse {
+    0%, 80%, 100% { opacity: 0.3; }
+    40% { opacity: 1; }
+  }
+  .animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+  .animate-spin-slow { animation: spin-slow 3s linear infinite; }
+  .animate-fade-in-up { animation: fade-in-up 0.4s ease-out forwards; }
+  .dot-1 { animation: dot-pulse 1.4s ease-in-out infinite; }
+  .dot-2 { animation: dot-pulse 1.4s ease-in-out 0.2s infinite; }
+  .dot-3 { animation: dot-pulse 1.4s ease-in-out 0.4s infinite; }
+</style>
+
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center">
+
+  <!-- Modal Container -->
+  <div class="w-[320px] bg-surface border border-border rounded-xl shadow-2xl shadow-black/60 overflow-hidden animate-fade-in-up">
+    
+    <!-- Header area with subtle glow -->
+    <div class="px-5 pt-6 pb-4 flex flex-col items-center text-center">
+      
+      <!-- Spinner / Glow indicator -->
+      <div class="relative w-12 h-12 mb-4 flex items-center justify-center">
+        <!-- Outer glow ring -->
+        <div class="absolute inset-0 rounded-full bg-accent/10 animate-pulse-glow"></div>
+        <!-- Spinning arc -->
+        <svg class="absolute inset-0 w-12 h-12 animate-spin-slow" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="20" stroke="rgba(167, 139, 250, 0.15)" stroke-width="2"/>
+          <path d="M24 4 A20 20 0 0 1 44 24" stroke="rgba(167, 139, 250, 0.7)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <!-- Center icon -->
+        <i data-lucide="bot" class="w-5 h-5 text-accent relative z-10"></i>
+      </div>
+
+      <!-- Status text -->
+      <h3 class="text-text-primary text-sm font-medium mb-1">Aider is processing edits</h3>
+      <p class="text-text-muted text-[11px] flex items-center gap-0.5">
+        Working on your review suggestions
+        <span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>
+      </p>
+    </div>
+
+    <!-- Task list -->
+    <div class="px-5 pb-4">
+      <div class="bg-bg-base rounded-lg border border-border/60 overflow-hidden">
+        
+        <!-- Completed task -->
+        <div class="px-3 py-2 border-b border-border/40 flex items-center gap-2.5">
+          <div class="w-3.5 h-3.5 rounded-full bg-green-400/20 flex items-center justify-center shrink-0">
+            <i data-lucide="check" class="w-2 h-2 text-green-400/80"></i>
+          </div>
+          <span class="text-text-muted/80 text-[10px] mono truncate flex-1">Plugin Architecture.md</span>
+          <span class="text-[9px] text-green-400/60 mono">done</span>
+        </div>
+
+        <!-- Active task -->
+        <div class="px-3 py-2 border-b border-border/40 flex items-center gap-2.5 bg-accent-dim/30">
+          <div class="w-3.5 h-3.5 rounded-full border border-accent/40 flex items-center justify-center shrink-0">
+            <div class="w-1.5 h-1.5 rounded-full bg-accent/70 animate-pulse-glow"></div>
+          </div>
+          <span class="text-text-primary/90 text-[10px] mono truncate flex-1">Error Handling.md</span>
+          <span class="text-[9px] text-accent/70 mono">editing</span>
+        </div>
+
+        <!-- Pending task -->
+        <div class="px-3 py-2 border-b border-border/40 flex items-center gap-2.5">
+          <div class="w-3.5 h-3.5 rounded-full border border-border/50 flex items-center justify-center shrink-0">
+            <div class="w-1 h-1 rounded-full bg-text-muted/30"></div>
+          </div>
+          <span class="text-text-muted/50 text-[10px] mono truncate flex-1">Config Schema.md</span>
+          <span class="text-[9px] text-text-muted/40 mono">queued</span>
+        </div>
+
+        <!-- Pending task -->
+        <div class="px-3 py-2 flex items-center gap-2.5">
+          <div class="w-3.5 h-3.5 rounded-full border border-border/50 flex items-center justify-center shrink-0">
+            <div class="w-1 h-1 rounded-full bg-text-muted/30"></div>
+          </div>
+          <span class="text-text-muted/50 text-[10px] mono truncate flex-1">Event System.md</span>
+          <span class="text-[9px] text-text-muted/40 mono">queued</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="px-5 pb-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[9px] mono text-text-muted/60">Progress</span>
+        <span class="text-[9px] mono text-text-muted/60">1 of 4 files</span>
+      </div>
+      <div class="h-1 bg-bg-base rounded-full overflow-hidden">
+        <div class="h-full w-[30%] bg-accent/50 rounded-full transition-all duration-500"></div>
+      </div>
+    </div>
+
+    <!-- Footer with cancel -->
+    <div class="px-5 py-3 border-t border-border/50 flex items-center justify-between">
+      <span class="text-[9px] mono text-text-muted/40">~2 min remaining</span>
+      <button class="text-[10px] mono px-3 py-1.5 rounded-md border border-border/60 text-text-muted/70 hover:text-red-300/80 hover:border-red-400/30 hover:bg-red-400/5 transition-all">
+        <i data-lucide="square" class="w-2.5 h-2.5 inline-block mr-1 -mt-px"></i>
+        Abort
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+<script>if (window.lucide) lucide.createIcons();</script>
+</html>

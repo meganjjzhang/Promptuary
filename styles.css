@@ -1,0 +1,251 @@
+/* ============================================================
+ * MultiAIEdit v0.1 styles
+ * ============================================================ */
+
+/* ---------- Highlight Decorations ---------- */
+.cm-multiaiedit-highlight {
+  border-radius: 2px;
+  padding: 0;
+}
+.cm-multiaiedit-highlight-yellow { background-color: rgba(244, 211, 94, 0.32); }
+.cm-multiaiedit-highlight-blue   { background-color: rgba(120, 170, 240, 0.30); }
+.cm-multiaiedit-highlight-green  { background-color: rgba(120, 200, 140, 0.30); }
+.cm-multiaiedit-highlight-purple { background-color: rgba(190, 140, 220, 0.30); }
+
+.theme-dark .cm-multiaiedit-highlight-yellow { background-color: rgba(244, 211, 94, 0.22); }
+.theme-dark .cm-multiaiedit-highlight-blue   { background-color: rgba(120, 170, 240, 0.22); }
+.theme-dark .cm-multiaiedit-highlight-green  { background-color: rgba(120, 200, 140, 0.22); }
+.theme-dark .cm-multiaiedit-highlight-purple { background-color: rgba(190, 140, 220, 0.22); }
+
+.cm-multiaiedit-review {
+  background-color: rgba(255, 200, 200, 0.30);
+  border-bottom: 2px solid rgba(220, 100, 100, 0.6);
+}
+.theme-dark .cm-multiaiedit-review {
+  background-color: rgba(255, 120, 120, 0.18);
+  border-bottom: 2px solid rgba(220, 100, 100, 0.5);
+}
+
+.cm-multiaiedit-strike {
+  text-decoration: line-through;
+  text-decoration-color: rgba(220, 80, 80, 0.85);
+  background-color: rgba(220, 80, 80, 0.12);
+}
+
+.cm-multiaiedit-fuzzy {
+  outline: 1px dashed var(--text-warning);
+  outline-offset: -1px;
+}
+
+/* ---------- Selection Popover (desktop) ---------- */
+.multiaiedit-popover {
+  position: absolute;
+  z-index: 999;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+}
+.multiaiedit-popover .mae-color {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid var(--background-modifier-border);
+}
+.multiaiedit-popover .mae-color.yellow { background: #f4d35e; }
+.multiaiedit-popover .mae-color.blue   { background: #78aaf0; }
+.multiaiedit-popover .mae-color.green  { background: #78c88c; }
+.multiaiedit-popover .mae-color.purple { background: #be8cdc; }
+.multiaiedit-popover .mae-color:hover {
+  transform: scale(1.1);
+  transition: transform 0.1s;
+}
+.multiaiedit-popover button {
+  background: transparent;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--text-normal);
+  font-size: 13px;
+}
+.multiaiedit-popover button:hover {
+  background: var(--background-modifier-hover);
+}
+.multiaiedit-popover input[type="text"] {
+  width: 220px;
+  padding: 4px 6px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+/* ---------- Bottom Toolbar (mobile) ---------- */
+.multiaiedit-bottom-toolbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: var(--background-primary);
+  border-top: 1px solid var(--background-modifier-border);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Sidebar ---------- */
+.multiaiedit-sidebar {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  overflow-y: auto;
+}
+.mae-mode-capsule {
+  display: flex;
+  background: var(--background-secondary);
+  border-radius: 999px;
+  padding: 2px;
+  align-self: flex-start;
+}
+.mae-mode-capsule button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 4px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.mae-mode-capsule button.active {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.mae-banner {
+  background: var(--background-modifier-error-hover, rgba(220, 100, 100, 0.12));
+  color: var(--text-warning);
+  border: 1px solid var(--text-warning);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mae-banner button {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.mae-toolbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mae-toolbar button {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.mae-toolbar button:hover {
+  background: var(--interactive-accent-hover);
+}
+.mae-toolbar button.secondary {
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+}
+.mae-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+.mae-card:hover {
+  background: var(--background-modifier-hover);
+}
+.mae-card.fuzzy {
+  border-left: 3px solid var(--text-warning);
+}
+.mae-card.drifted {
+  opacity: 0.55;
+  border-left: 3px solid var(--background-modifier-error);
+}
+.mae-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.mae-card-meta .mae-tag {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--background-primary);
+}
+.mae-card-meta .mae-tag.yellow { background: rgba(244, 211, 94, 0.5); }
+.mae-card-meta .mae-tag.blue   { background: rgba(120, 170, 240, 0.5); }
+.mae-card-meta .mae-tag.green  { background: rgba(120, 200, 140, 0.5); }
+.mae-card-meta .mae-tag.purple { background: rgba(190, 140, 220, 0.5); color: white; }
+.mae-card-text {
+  color: var(--text-muted);
+  border-left: 2px solid var(--background-modifier-border);
+  padding-left: 6px;
+}
+.mae-card-text.strike {
+  text-decoration: line-through;
+}
+.mae-card-review {
+  color: var(--text-normal);
+}
+.mae-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mae-card-actions button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 0;
+}
+.mae-card-actions button:hover {
+  color: var(--text-normal);
+}
+.mae-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 16px 0;
+}

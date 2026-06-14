@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://unpkg.com" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.7.2/js/all.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    * {
+      scrollbar-width: none;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+  </style>
+</head>
+
+<body class="bg-[#1e1e2e] min-h-screen flex items-center justify-center p-8">
+<link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style type="text/tailwindcss">
+  @theme {
+    --color-surface: #262637;
+    --color-surface-hover: #2e2e42;
+    --color-border: #363649;
+    --color-text-primary: #cdd6f4;
+    --color-text-muted: #6c7086;
+    --color-bg-base: #1e1e2e;
+    --color-hl-yellow: rgba(250, 204, 21, 0.25);
+    --color-hl-blue: rgba(96, 165, 250, 0.25);
+    --color-hl-green: rgba(74, 222, 128, 0.25);
+    --color-hl-purple: rgba(192, 132, 252, 0.25);
+  }
+</style>
+
+<style>
+  body { font-family: 'DM Sans', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+</style>
+
+<!-- Simulated editor background -->
+<div class="w-full max-w-[700px] relative">
+  <!-- Fake editor content -->
+  <div class="text-text-primary/80 text-sm leading-7 mono px-6">
+    <p class="text-text-muted text-xs mb-4 uppercase tracking-wider font-medium">editor context</p>
+    <p>The architecture of modern knowledge management systems relies heavily on</p>
+    <p>bidirectional linking and graph-based representations. This enables users to</p>
+    <p class="relative">
+      <span>discover emergent </span>
+      <span class="bg-hl-blue px-0.5 rounded-sm border-b border-blue-400/30">connections between disparate ideas that would</span>
+    </p>
+    <p><span class="bg-hl-blue px-0.5 rounded-sm border-b border-blue-400/30">otherwise remain hidden</span> in traditional hierarchical note-taking paradigms.</p>
+    <p>The fundamental shift is from filing to finding — a retrieval-first model.</p>
+  </div>
+
+  <!-- Floating Popover - Reading Mode (collapsed) -->
+  <div class="absolute top-[115px] left-[260px] z-50">
+    <div class="bg-surface border border-border rounded-lg shadow-xl shadow-black/30 px-2.5 py-2 flex items-center gap-2">
+      <!-- Color dots -->
+      <button class="w-4 h-4 rounded-full bg-yellow-400/60 border border-yellow-400/40 hover:scale-110 transition-transform"></button>
+      <button class="w-4 h-4 rounded-full bg-blue-400/60 border border-blue-400/40 hover:scale-110 transition-transform ring-2 ring-blue-400/30 ring-offset-1 ring-offset-surface"></button>
+      <button class="w-4 h-4 rounded-full bg-green-400/60 border border-green-400/40 hover:scale-110 transition-transform"></button>
+      <button class="w-4 h-4 rounded-full bg-purple-400/60 border border-purple-400/40 hover:scale-110 transition-transform"></button>
+      <!-- Divider -->
+      <div class="w-px h-4 bg-border mx-0.5"></div>
+      <!-- Note button -->
+      <button class="text-text-muted text-xs font-medium px-2 py-0.5 rounded hover:bg-surface-hover hover:text-text-primary transition-colors mono">
+        <i data-lucide="message-square" class="w-3 h-3 inline-block mr-0.5 -mt-px"></i>
+        Note
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Popover - Reading Mode (expanded with note input) -->
+  <div class="mt-16 flex justify-center">
+    <div class="bg-surface border border-border rounded-lg shadow-xl shadow-black/30 p-2.5 w-[260px]">
+      <div class="flex items-center gap-2 mb-2">
+        <!-- Color dots -->
+        <button class="w-4 h-4 rounded-full bg-yellow-400/60 border border-yellow-400/40 hover:scale-110 transition-transform"></button>
+        <button class="w-4 h-4 rounded-full bg-blue-400/60 border border-blue-400/40 hover:scale-110 transition-transform"></button>
+        <button class="w-4 h-4 rounded-full bg-green-400/60 border border-green-400/40 hover:scale-110 transition-transform ring-2 ring-green-400/30 ring-offset-1 ring-offset-surface"></button>
+        <button class="w-4 h-4 rounded-full bg-purple-400/60 border border-purple-400/40 hover:scale-110 transition-transform"></button>
+        <div class="w-px h-4 bg-border mx-0.5"></div>
+        <button class="text-green-400/80 text-xs font-medium px-2 py-0.5 rounded bg-green-400/10 mono">
+          <i data-lucide="message-square" class="w-3 h-3 inline-block mr-0.5 -mt-px"></i>
+          Note
+        </button>
+      </div>
+      <!-- Expanded note input -->
+      <div class="border border-border rounded-md bg-bg-base">
+        <input type="text" placeholder="Add a note to this highlight..." class="w-full bg-transparent text-text-primary text-xs px-2.5 py-2 placeholder:text-text-muted/60 outline-none mono">
+      </div>
+      <div class="flex justify-end mt-1.5">
+        <button class="text-xs text-text-muted hover:text-text-primary px-2 py-0.5 rounded hover:bg-surface-hover transition-colors">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Labels -->
+  <div class="mt-12 flex gap-6 justify-center">
+    <div class="text-center">
+      <div class="text-text-muted text-[10px] uppercase tracking-widest mono mb-1">Collapsed</div>
+      <div class="text-text-muted/50 text-[10px]">on text selection</div>
+    </div>
+    <div class="text-center">
+      <div class="text-text-muted text-[10px] uppercase tracking-widest mono mb-1">Expanded</div>
+      <div class="text-text-muted/50 text-[10px]">after clicking "Note"</div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>if (window.lucide) lucide.createIcons();</script>
+</html>

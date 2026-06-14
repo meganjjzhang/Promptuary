@@ -1,0 +1,33 @@
+# intellij
+.idea
+
+# vscode
+.vscode
+
+# npm
+node_modules
+
+# Obsidian vault config (not part of the plugin)
+.obsidian/
+
+# HiNote plugin data (not part of this plugin)
+.hinote/
+
+# WorkBuddy project config
+.workbuddy/
+
+# Compiled main.js is included for Obsidian plugin distribution
+# (users clone the repo to .obsidian/plugins/multiaiedit/)
+
+# build files
+*.js.map
+
+# obsidian plugin data (user-specific)
+data.json
+
+# Exclude macOS Finder (System Explorer) View States
+.DS_Store
+
+# pnpm/yarn lockfiles (optional, comment out if you want to commit)
+yarn.lock
+pnpm-lock.yaml

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://unpkg.com" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.7.2/js/all.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    * {
+      scrollbar-width: none;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+  </style>
+</head>
+
+<body class="bg-[#1e1e2e] min-h-screen flex items-center justify-center p-6">
+<link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style type="text/tailwindcss">
+  @theme {
+    --color-surface: #262637;
+    --color-surface-hover: #2e2e42;
+    --color-border: #363649;
+    --color-text-primary: #cdd6f4;
+    --color-text-muted: #6c7086;
+    --color-bg-base: #1e1e2e;
+    --color-hl-yellow: rgba(250, 204, 21, 0.12);
+    --color-hl-blue: rgba(96, 165, 250, 0.12);
+    --color-hl-green: rgba(74, 222, 128, 0.12);
+    --color-hl-purple: rgba(192, 132, 252, 0.12);
+    --color-quote-bg: rgba(205, 214, 244, 0.04);
+  }
+</style>
+
+<style>
+  body { font-family: 'DM Sans', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #363649; border-radius: 2px; }
+</style>
+
+<!-- Sidebar Panel -->
+<div class="w-[300px] h-[680px] bg-bg-base border-l border-border flex flex-col rounded-lg overflow-hidden shadow-2xl shadow-black/40">
+  
+  <!-- Header -->
+  <div class="px-3.5 pt-3.5 pb-2.5 border-b border-border/60">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded bg-purple-400/20 flex items-center justify-center">
+          <i data-lucide="highlighter" class="w-2.5 h-2.5 text-purple-300/80"></i>
+        </div>
+        <span class="text-text-primary text-xs font-semibold mono">MultiAIEdit</span>
+      </div>
+      <button class="text-text-muted hover:text-text-primary transition-colors">
+        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="flex bg-surface rounded-md p-0.5 gap-0.5">
+      <button class="flex-1 text-[11px] font-medium py-1.5 px-2 rounded bg-bg-base text-text-primary shadow-sm mono">Reading</button>
+      <button class="flex-1 text-[11px] font-medium py-1.5 px-2 rounded text-text-muted hover:text-text-primary/80 transition-colors mono">Reviewing</button>
+      <button class="flex-1 text-[11px] font-medium py-1.5 px-2 rounded text-text-muted hover:text-text-primary/80 transition-colors mono">All</button>
+    </div>
+  </div>
+
+  <!-- Content List -->
+  <div class="flex-1 overflow-y-auto scrollbar-thin px-2.5 py-2.5 space-y-2">
+    
+    <!-- Highlight Card - Yellow -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-yellow-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-yellow-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <!-- Quoted source text -->
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              bidirectional linking and graph-based representations
+            </p>
+          </div>
+          <!-- Meta -->
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.14</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Highlight Card - Blue -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-blue-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-blue-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              connections between disparate ideas that would otherwise remain hidden
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.17</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Note Card - Green (highlight + user note) -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-green-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-green-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <!-- Quoted source text -->
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              retrieval-first model
+            </p>
+          </div>
+          <!-- User note/comment -->
+          <div class="rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/90 text-[11px] leading-relaxed">
+              <i data-lucide="pen-line" class="w-2.5 h-2.5 inline-block mr-1 -mt-px text-green-400/60"></i>
+              This contradicts the "folder-first" approach in Tiago Forte's PARA method
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.22</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Highlight Card - Purple -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-purple-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-purple-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              emergent structure arises from consistent linking practice
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.31</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Note Card - Yellow (highlight + user note) -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-yellow-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-yellow-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <!-- Quoted source text -->
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              graph-based representations
+            </p>
+          </div>
+          <!-- User note/comment -->
+          <div class="rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/90 text-[11px] leading-relaxed">
+              <i data-lucide="pen-line" class="w-2.5 h-2.5 inline-block mr-1 -mt-px text-yellow-400/60"></i>
+              Compare this with Luhmann's original Zettelkasten numbering system
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.14</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Highlight Card - Blue -->
+    <div class="group bg-surface/60 border border-border/50 rounded-md p-2.5 hover:border-blue-400/20 transition-colors">
+      <div class="flex items-start gap-2.5">
+        <div class="w-0.5 self-stretch rounded-full bg-blue-400/50 shrink-0 mt-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <div class="bg-quote-bg rounded px-2 py-1.5 mb-1.5">
+            <p class="text-text-primary/80 text-[10.5px] leading-relaxed mono">
+              serendipitous discovery through spatial proximity
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-text-muted/60">
+            <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+            <span class="text-[9px] mono truncate">Knowledge Systems.md</span>
+            <span class="text-[9px] mono">· L.45</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary footer -->
+  <div class="px-3.5 py-2 border-t border-border/60">
+    <div class="flex items-center justify-between text-text-muted/70">
+      <span class="text-[9px] mono">6 highlights · 2 notes</span>
+      <div class="flex gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400/40"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-blue-400/40"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-green-400/40"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-purple-400/40"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>if (window.lucide) lucide.createIcons();</script>
+</html>
