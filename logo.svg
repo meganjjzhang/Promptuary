@@ -1,0 +1,153 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="512"
+    height="512"
+    viewBox="0 0 512 512"
+    fill="none">
+
+    <!-- Halo — slow continuous rotation (4 arcs × 78° + 4 gaps × 12° = 360°) -->
+    <g id="halo">
+        <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 256 256"
+            to="360 256 256"
+            dur="60s"
+            repeatCount="indefinite"/>
+
+        <!-- Arc 1: -90° → -12° -->
+        <path
+            d="M256 92
+               A164 164 0 0 1 416.42 221.90"
+            stroke="#CDCEE0"
+            stroke-width="18"
+            stroke-linecap="round"/>
+
+        <!-- Arc 2: 0° → 78° -->
+        <path
+            d="M420 256
+               A164 164 0 0 1 290.10 416.42"
+            stroke="#CDCEE0"
+            stroke-width="18"
+            stroke-linecap="round"
+            opacity="0.85"/>
+
+        <!-- Arc 3: 90° → 168° -->
+        <path
+            d="M256 420
+               A164 164 0 0 1 95.58 290.10"
+            stroke="#CDCEE0"
+            stroke-width="18"
+            stroke-linecap="round"/>
+
+        <!-- Arc 4: 180° → 258° -->
+        <path
+            d="M92 256
+               A164 164 0 0 1 221.90 95.58"
+            stroke="#CDCEE0"
+            stroke-width="18"
+            stroke-linecap="round"
+            opacity="0.85"/>
+    </g>
+
+    <!-- Network — paths draw in, nodes fade in sequentially -->
+    <g id="network">
+
+        <!-- Top path -->
+        <path
+            d="M256 130
+               C274 202 310 238 382 256"
+            stroke="#756FA7"
+            stroke-width="18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="220"
+            stroke-dashoffset="220">
+            <animate attributeName="stroke-dashoffset" from="220" to="0"
+                dur="0.8s" begin="0.2s" fill="freeze"/>
+        </path>
+
+        <!-- Right path -->
+        <path
+            d="M382 256
+               C310 274 274 310 256 382"
+            stroke="#756FA7"
+            stroke-width="18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="220"
+            stroke-dashoffset="220">
+            <animate attributeName="stroke-dashoffset" from="220" to="0"
+                dur="0.8s" begin="0.6s" fill="freeze"/>
+        </path>
+
+        <!-- Bottom path -->
+        <path
+            d="M256 382
+               C238 310 202 274 130 256"
+            stroke="#756FA7"
+            stroke-width="18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="220"
+            stroke-dashoffset="220">
+            <animate attributeName="stroke-dashoffset" from="220" to="0"
+                dur="0.8s" begin="1.0s" fill="freeze"/>
+        </path>
+
+        <!-- Left path -->
+        <path
+            d="M130 256
+               C202 238 238 202 256 130"
+            stroke="#756FA7"
+            stroke-width="18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="220"
+            stroke-dashoffset="220">
+            <animate attributeName="stroke-dashoffset" from="220" to="0"
+                dur="0.8s" begin="1.4s" fill="freeze"/>
+        </path>
+
+        <!-- Nodes — each fades in after its path draws -->
+        <circle cx="256" cy="130" r="16" fill="#645D8F" opacity="0">
+            <animate attributeName="opacity" from="0" to="1"
+                dur="0.3s" begin="0.5s" fill="freeze"/>
+        </circle>
+        <circle cx="382" cy="256" r="16" fill="#645D8F" opacity="0">
+            <animate attributeName="opacity" from="0" to="1"
+                dur="0.3s" begin="0.9s" fill="freeze"/>
+        </circle>
+        <circle cx="256" cy="382" r="16" fill="#645D8F" opacity="0">
+            <animate attributeName="opacity" from="0" to="1"
+                dur="0.3s" begin="1.3s" fill="freeze"/>
+        </circle>
+        <circle cx="130" cy="256" r="16" fill="#645D8F" opacity="0">
+            <animate attributeName="opacity" from="0" to="1"
+                dur="0.3s" begin="1.7s" fill="freeze"/>
+        </circle>
+
+    </g>
+
+    <!-- AI Spark — fade in after network, then continuous gentle pulse -->
+    <g id="spark" opacity="0">
+        <animate attributeName="opacity" from="0" to="1"
+            dur="0.5s" begin="2.0s" fill="freeze"/>
+
+        <path
+            d="
+                M256 198
+                C262 226 286 250 314 256
+                C286 262 262 286 256 314
+                C250 286 226 262 198 256
+                C226 250 250 226 256 198
+                Z"
+            fill="#FAAF71">
+
+            <!-- Continuous pulse: full → dim → full -->
+            <animate attributeName="opacity" values="1;0.55;1"
+                dur="3s" begin="2.5s" repeatCount="indefinite"/>
+        </path>
+    </g>
+
+</svg>

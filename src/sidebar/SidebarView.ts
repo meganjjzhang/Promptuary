@@ -19,6 +19,7 @@ export class SidebarView extends ItemView {
   private actionBarEl!: HTMLElement;
   private refreshSeq = 0;
   private modifyDebounceTimer: number | null = null;
+  private lastReviewCount = 0;
 
   constructor(leaf: WorkspaceLeaf, private plugin: MultiAIEditPlugin) {
     super(leaf);
@@ -155,7 +156,7 @@ export class SidebarView extends ItemView {
       this.contentEl2.empty();
       this.actionBarEl.empty();
       this.renderHeader(this.headerEl);
-      this.contentEl2.createDiv({ cls: "mae-empty", text: "请打开一个 Markdown 文件" });
+      this.renderEmptyState(this.contentEl2, "请打开一个 Markdown 文件");
       return;
     }
     const data = await this.plugin.store.getFile(this.currentFilePath);
@@ -167,23 +168,50 @@ export class SidebarView extends ItemView {
     //    advance baseline. The user did edit the doc but no annotation is at risk.
     // 3. hash changed AND ≥1 annotation is fuzzy/drifted → show the banner with a
     //    one-click "全部确认" that advances baseline.
-    let affected: { fuzzy: number; drifted: number; autoHealed: number } = { fuzzy: 0, drifted: 0, autoHealed: 0 };
+    let affected: { fuzzy: number; drifted: number; autoHealed: number; reviewRemoved: number; readingRemoved: number } = { fuzzy: 0, drifted: 0, autoHealed: 0, reviewRemoved: 0, readingRemoved: 0 };
     const hashChanged =
       !!data.baselineHash && !!this.currentHash && data.baselineHash !== this.currentHash;
     if (hashChanged) {
       const docText = lastDocText(this);
       if (docText !== null) {
-        // Try to auto-heal drifted annotations using fuzzyLocate (方案 A)
+        // Try to auto-heal unambiguous fuzzy anchors and collect fully drifted annotations.
         const driftedAnns: Annotation[] = [];
         for (const ann of data.annotations) {
           const r = locate(docText, ann);
-          if (r.status === "fuzzy") affected.fuzzy++;
-          else if (r.status === "drifted") driftedAnns.push(ann);
+          if (r.status === "fuzzy") {
+            // A single exact selectedText match with stale context is safe to
+            // refresh silently. Only multi-candidate fuzzy matches need user review.
+            if ((r.candidates?.length ?? 0) === 0 && r.from !== undefined && r.to !== undefined) {
+              const span = this.plugin.settings.contextSpan;
+              const ctxStart = Math.max(0, r.from - span);
+              const ctxEnd = Math.min(docText.length, r.to + span);
+              const newSelectedText = docText.slice(r.from, r.to);
+              await this.plugin.store.updateAnnotation(this.currentFilePath, ann.id, {
+                selectedText: newSelectedText,
+                contextBefore: docText.slice(ctxStart, r.from),
+                contextAfter: docText.slice(r.to, ctxEnd),
+                lineHint: computeLineHint(docText, r.from),
+                occurrenceIndex: computeOccurrenceIndex(docText, newSelectedText, r.from),
+              });
+              affected.autoHealed++;
+            } else {
+              affected.fuzzy++;
+            }
+          } else if (r.status === "drifted") driftedAnns.push(ann);
         }
 
         // Attempt fuzzy healing for drifted annotations
         if (driftedAnns.length > 0) {
           for (const ann of driftedAnns) {
+            if (ann.type === "review") {
+              // Review annotations are actionable instructions. If the referenced
+              // text was manually deleted or can no longer be located, the review
+              // is stale/consumed and should not stay as sidebar noise.
+              await this.plugin.store.removeAnnotation(this.currentFilePath, ann.id);
+              affected.reviewRemoved++;
+              continue;
+            }
+
             const fuzzyResult = fuzzyLocate(docText, ann);
             if (fuzzyResult.status === "auto-healed" && fuzzyResult.from !== undefined && fuzzyResult.to !== undefined) {
               // Extract new anchor data and silently update the annotation
@@ -205,7 +233,10 @@ export class SidebarView extends ItemView {
               });
               affected.autoHealed++;
             } else {
-              affected.drifted++;
+              // The referenced text is no longer locatable. Remove stale reading
+              // annotations instead of surfacing a drift state to the user.
+              await this.plugin.store.removeAnnotation(this.currentFilePath, ann.id);
+              affected.readingRemoved++;
             }
           }
         }
@@ -218,14 +249,19 @@ export class SidebarView extends ItemView {
           await this.plugin.store.confirmBaseline(this.currentFilePath, this.currentHash, true);
           if (myToken !== this.refreshSeq) return;
           this.baselineMismatch = false;
-          if (affected.autoHealed > 0) {
-            new Notice(`已自动修复 ${affected.autoHealed} 条批注位置`);
-          }
+          const parts: string[] = [];
+          if (affected.autoHealed > 0) parts.push(`已自动修复 ${affected.autoHealed} 条批注位置`);
+          if (affected.reviewRemoved > 0) parts.push(`${affected.reviewRemoved} 条批阅意见已自动移除`);
+          if (affected.readingRemoved > 0) parts.push(`${affected.readingRemoved} 条失效阅读批注已自动移除`);
+          if (parts.length > 0) new Notice(parts.join("，"));
         } else {
           this.baselineMismatch = true;
-          if (affected.autoHealed > 0) {
-            new Notice(`已自动修复 ${affected.autoHealed} 条批注位置，${remainingIssues} 条仍需检查`);
-          }
+          const parts: string[] = [];
+          if (affected.autoHealed > 0) parts.push(`已自动修复 ${affected.autoHealed} 条批注位置`);
+          if (affected.reviewRemoved > 0) parts.push(`${affected.reviewRemoved} 条批阅意见已自动移除`);
+          if (affected.readingRemoved > 0) parts.push(`${affected.readingRemoved} 条失效阅读批注已自动移除`);
+          if (remainingIssues > 0) parts.push(`${remainingIssues} 条位置存在歧义，需检查`);
+          if (parts.length > 0) new Notice(parts.join("，"));
         }
       } else {
         // No doc text yet (probably switching files) — skip check this round
@@ -254,9 +290,21 @@ export class SidebarView extends ItemView {
     // --- Bottom action bar (fixed bottom, only in reviewing/all mode) ---
     this.actionBarEl.empty();
     const reviewCount = annotations.filter((a) => a.type === "review").length;
+    this.lastReviewCount = reviewCount;
     if (this.mode !== "reading") {
       this.renderActionBar(this.actionBarEl, reviewCount);
     }
+  }
+
+  /** Render empty state: illustration + hint text */
+  private renderEmptyState(parent: HTMLElement, text: string): void {
+    const wrap = parent.createDiv({ cls: "mae-empty-state" });
+    if (this.plugin.emptyStateUrl) {
+      const img = wrap.createEl("img", { cls: "mae-empty-state-img" });
+      img.src = this.plugin.emptyStateUrl;
+      img.alt = "";
+    }
+    wrap.createDiv({ cls: "mae-empty-state-text", text });
   }
 
   /** Render sidebar header: icon + title + settings */
@@ -264,7 +312,13 @@ export class SidebarView extends ItemView {
     const row = parent.createDiv({ cls: "mae-header-row" });
     const left = row.createDiv({ cls: "mae-header-left" });
     const iconWrap = left.createDiv({ cls: "mae-header-icon" });
-    setIcon(iconWrap, "mae-highlighter");
+    if (this.plugin.logoUrl) {
+      const img = iconWrap.createEl("img", { cls: "mae-logo-img" });
+      img.src = this.plugin.logoUrl;
+      img.alt = "MultiAIEdit";
+    } else {
+      setIcon(iconWrap, "mae-highlighter");
+    }
     left.createSpan({ cls: "mae-header-title", text: "MultiAIEdit" });
 
     const settingsBtn = row.createEl("button", { cls: "mae-header-settings" });
@@ -289,42 +343,89 @@ export class SidebarView extends ItemView {
     }
   }
 
-  /** Render bottom action bar: Row1 Agent CTA + Row2 Copy Prompt + More menu */
+  /** Render bottom action bar: Row1 Agent CTA + Row2 API批阅/复制Prompt/查看批注文件 */
   private renderActionBar(parent: HTMLElement, reviewCount: number): void {
     const hasReviews = reviewCount > 0;
+    const executing = this.plugin.executionState;
+    const isExecuting = executing !== null;
 
-    // Row 1: Agent 执行（紫色 CTA 主按钮，桌面端）
+    // Row 1: Agent 批阅（紫色 CTA 主按钮，桌面端）
     if (!isMobile()) {
-      const execBtn = parent.createEl("button", {
-        cls: "mae-action-execute",
-        text: "Agent 执行",
-      });
-      execBtn.disabled = !hasReviews;
-      execBtn.onclick = () => {
+      const execBtn = parent.createEl("button", { cls: "mae-action-execute" });
+      setIcon(execBtn, "sparkles");
+      execBtn.title = "选择 Agent CLI 执行批阅修改";
+      const isAgentExecuting = isExecuting && executing.type === "agent";
+      if (isAgentExecuting) {
+        execBtn.createSpan({ text: "Agent 批阅中…" });
+      } else {
+        execBtn.createSpan({ text: "Agent 批阅" });
+      }
+      execBtn.disabled = !hasReviews || isExecuting;
+      if (isAgentExecuting) execBtn.addClass("mae-executing");
+      execBtn.onclick = async () => {
+        if (!hasReviews || isExecuting) return;
         if (!hasReviews) { new Notice("当前文件没有批阅意见"); return; }
-        this.plugin.runAgentWithSelect();
+        this.plugin.executionState = { type: "agent" };
+        this.reRenderActionBar();
+        try {
+          await this.plugin.runAgentWithSelect();
+        } finally {
+          this.plugin.executionState = null;
+          this.refresh();
+        }
       };
     }
 
-    // Row 2: 复制 Prompt + 更多
+    // Row 2: API批阅 + 复制Prompt + 查看批注文件
     const row2 = parent.createDiv({ cls: "mae-action-row" });
 
-    const copyBtn = row2.createEl("button", { cls: "mae-action-btn", text: "复制 Prompt" });
+    // API 批阅
+    const hasApiKey = !!this.plugin.settings.apiSettings?.apiKey;
+    const isApiExecuting = isExecuting && executing.type === "api";
+    const apiBtn = row2.createEl("button", { cls: "mae-action-btn" });
+    setIcon(apiBtn, "zap");
+    if (isApiExecuting) {
+      apiBtn.createSpan({ cls: "mae-action-short", text: "API" });
+      apiBtn.createSpan({ cls: "mae-action-long", text: " 批阅中…" });
+    } else {
+      apiBtn.createSpan({ cls: "mae-action-short", text: "API" });
+      apiBtn.createSpan({ cls: "mae-action-long", text: hasApiKey ? " 批阅" : "…" });
+    }
+    apiBtn.title = hasApiKey ? "通过 API 直调执行批阅修改" : "请先在设置中配置 API Key";
+    apiBtn.disabled = !hasApiKey || isExecuting;
+    if (isApiExecuting) apiBtn.addClass("mae-executing");
+    apiBtn.onclick = async () => {
+      if (!hasApiKey || isExecuting) return;
+      this.plugin.executionState = { type: "api" };
+      this.reRenderActionBar();
+      try {
+        await this.plugin.runAPIExecute();
+      } finally {
+        this.plugin.executionState = null;
+        this.refresh();
+      }
+    };
+
+    // 复制 Prompt
+    const copyBtn = row2.createEl("button", { cls: "mae-action-btn" });
     setIcon(copyBtn, "clipboard-copy");
-    copyBtn.disabled = !hasReviews;
+    copyBtn.createSpan({ cls: "mae-action-short", text: "Prompt" });
+    copyBtn.createSpan({ cls: "mae-action-long", text: " 复制" });
+    copyBtn.title = "复制批阅 Prompt 到剪贴板";
+    copyBtn.disabled = !hasReviews || isExecuting;
     copyBtn.onclick = () => {
       if (this.currentFilePath) this.plugin.runCopyPrompt(this.currentFilePath);
       else this.plugin.runCopyPrompt();
     };
 
-    const moreBtn = row2.createEl("button", { cls: "mae-action-btn mae-more-btn", text: "更多" });
-    setIcon(moreBtn, "chevron-down");
-    moreBtn.disabled = !hasReviews;
-    moreBtn.onclick = (ev) => {
-      if (!hasReviews) return;
+    // … 按钮（下拉菜单：导出批注文件）
+    const moreBtn = row2.createEl("button", { cls: "mae-action-btn mae-more-btn" });
+    setIcon(moreBtn, "more-horizontal");
+    moreBtn.title = "导出批注文件";
+    moreBtn.disabled = !hasReviews || isExecuting;
+    moreBtn.onclick = () => {
+      if (!hasReviews || isExecuting) return;
       const menu = new Menu();
-
-      // 导出批注文件
       menu.addItem((item) => {
         item.setTitle("导出批注文件")
           .setIcon("file-text")
@@ -333,30 +434,27 @@ export class SidebarView extends ItemView {
             else this.plugin.runExport();
           });
       });
-
-      // API Key 直调（桌面端）
-      if (!isMobile()) {
-        menu.addSeparator();
-        const hasApiKey = !!this.plugin.settings.apiSettings?.apiKey;
-        menu.addItem((item) => {
-          item.setTitle(hasApiKey ? "API 执行" : "API（未配置）")
-            .setIcon("zap")
-            .setChecked(hasApiKey)
-            .onClick(() => {
-              if (!hasApiKey) { new Notice("请先在设置中配置 API Key"); return; }
-              this.plugin.runAPIExecute();
-            });
-        });
-      }
-
       const rect = moreBtn.getBoundingClientRect();
       menu.showAtPosition({ x: rect.left, y: rect.top - 4 } as any);
     };
 
     // Status hint
     const status = parent.createDiv({ cls: "mae-action-status" });
-    status.createSpan({ cls: "mae-status-dot" });
-    status.createSpan({ text: `${reviewCount} 条批阅待执行` });
+    if (isExecuting) {
+      status.createSpan({ cls: "mae-status-dot mae-status-dot-executing" });
+      status.createSpan({ text: executing.type === "agent" ? "Agent 批阅中…" : "API 批阅中…" });
+    } else {
+      status.createSpan({ cls: "mae-status-dot" });
+      status.createSpan({ text: `${reviewCount} 条批阅待执行` });
+    }
+  }
+
+  /** Re-render just the bottom action bar (no store re-read) */
+  private reRenderActionBar(): void {
+    this.actionBarEl.empty();
+    if (this.mode !== "reading") {
+      this.renderActionBar(this.actionBarEl, this.lastReviewCount);
+    }
   }
 
   /** Render banner inside a given parent element */
@@ -386,7 +484,7 @@ export class SidebarView extends ItemView {
       return true;
     });
     if (filtered.length === 0) {
-      parent.createDiv({ cls: "mae-empty", text: emptyText(this.mode) });
+      this.renderEmptyState(parent, emptyText(this.mode));
       return;
     }
     // Sort by line position when possible, fallback to createdAt

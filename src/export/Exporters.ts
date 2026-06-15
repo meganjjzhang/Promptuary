@@ -163,14 +163,15 @@ export class ReviewExporter {
     }
     const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     const target = `${this.exportDir}/${fileName}-${stamp}.md`;
-    await adapter.write(target, md);
+    // Use vault.create() so the file is immediately indexed in Vault
+    const created = await this.app.vault.create(target, md);
     const tokens = estimateTokens(md);
     if (tokens > TOKEN_WARN) {
-      new Notice(`已导出 ${target}（约 ${tokens} tokens，建议分段处理）`);
+      new Notice(`已导出（约 ${tokens} tokens，建议分段处理）`);
     } else {
-      new Notice(`已导出 ${target}（约 ${tokens} tokens）`);
+      new Notice(`已导出（约 ${tokens} tokens）`);
     }
-    return target;
+    return created.path;
   }
 }
 

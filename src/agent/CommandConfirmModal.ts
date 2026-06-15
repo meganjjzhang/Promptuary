@@ -1,10 +1,27 @@
-import { App, Modal, Setting, Notice } from "obsidian";
+import { App, Modal, setIcon, Notice } from "obsidian";
 import { copyToClipboard } from "../export/Exporters";
+import { CommandRule } from "./CommandRuleStore";
+
+/** Initial char → accent color bucket (same as AgentSelectModal) */
+const AGENT_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+	C: { bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.20)", text: "rgba(167,139,250,0.90)" },
+	I: { bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.20)", text: "rgba(167,139,250,0.90)" },
+	O: { bg: "rgba(74,222,128,0.08)",  border: "rgba(74,222,128,0.15)",  text: "rgba(74,222,128,0.80)"  },
+	A: { bg: "rgba(96,165,250,0.08)",  border: "rgba(96,165,250,0.15)",  text: "rgba(96,165,250,0.80)"  },
+	G: { bg: "rgba(251,191,36,0.08)",  border: "rgba(251,191,36,0.15)",  text: "rgba(251,191,36,0.80)"  },
+};
+
+function colorFor(label: string) {
+	const key = label[0]?.toUpperCase() ?? "C";
+	return AGENT_COLORS[key] ?? AGENT_COLORS["C"];
+}
 
 /**
  * Modal that shows the full command about to be executed and asks
- * the user to confirm.  Also offers a "复制命令" fallback so the user
- * can paste it into their own terminal.
+ * the user to confirm.  Visual design matching Confirm Execution.html.
+ *
+ * Also offers a "Copy Command" fallback so the user can paste it
+ * into their own terminal.
  */
 export class CommandConfirmModal extends Modal {
 	private resolve: ((confirmed: boolean) => void) | null = null;
@@ -12,7 +29,8 @@ export class CommandConfirmModal extends Modal {
 	constructor(
 		app: App,
 		private command: string,
-		private agentLabel: string,
+		private rule: CommandRule,
+		private instructionFile?: string,
 	) {
 		super(app);
 	}
@@ -29,52 +47,116 @@ export class CommandConfirmModal extends Modal {
 	}
 
 	onOpen(): void {
-		const { containerEl } = this;
-		containerEl.empty();
-		containerEl.addClass("mae-confirm-modal");
+		const { modalEl } = this;
+		modalEl.empty();
+		modalEl.addClass("mae-confirm-modal");
 
-		containerEl.createEl("h2", {
-			text: `确认执行 — ${this.agentLabel}`,
+		const col = colorFor(this.rule.label);
+
+		// ── Header ──
+		const header = modalEl.createDiv({ cls: "mae-ccm-header" });
+		const headerLeft = header.createDiv({ cls: "mae-ccm-header-left" });
+		const iconWrap = headerLeft.createDiv({ cls: "mae-ccm-icon" });
+		setIcon(iconWrap, "terminal");
+		const titleWrap = headerLeft.createDiv();
+		titleWrap.createDiv({ cls: "mae-ccm-title", text: "Confirm Execution" });
+		titleWrap.createDiv({
+			cls: "mae-ccm-subtitle",
+			text: `${this.rule.label} · about to run in Terminal`,
 		});
 
-		// Command display (monospace, scrollable)
-		const codeWrap = containerEl.createDiv({
-			cls: "mae-confirm-command",
-		});
-		codeWrap.createEl("code", { text: this.command });
+		const closeBtn = header.createEl("button", { cls: "mae-ccm-close" });
+		closeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+		closeBtn.onclick = () => {
+			this.resolve?.(false);
+			this.close();
+		};
 
-		containerEl.createEl("p", {
-			cls: "mae-confirm-warning",
-			text: "请仔细检查命令内容，确认后将在终端中执行。",
+		// ── Agent badge row ──
+		const badgeRow = modalEl.createDiv({ cls: "mae-ccm-agent-row" });
+		const agentAvatar = badgeRow.createDiv({ cls: "mae-ccm-agent-avatar" });
+		agentAvatar.style.background = col.bg;
+		agentAvatar.style.borderColor = col.border;
+		const avatarChar = this.rule.id === "claude-internal" ? "CI" : this.rule.label[0];
+		const avatarSpan = agentAvatar.createSpan({ cls: "mae-ccm-agent-char", text: avatarChar });
+		avatarSpan.style.color = col.text;
+
+		badgeRow.createSpan({ cls: "mae-ccm-agent-name", text: this.rule.label });
+
+		const badge = badgeRow.createSpan({
+			cls: "mae-ccm-agent-badge installed",
+			text: "installed",
 		});
 
-		// Action buttons
-		new Setting(containerEl)
-			.addButton((b) =>
-				b.setButtonText("取消").onClick(() => {
-					this.resolve?.(false);
-					this.close();
-				}),
-			)
-			.addButton((b) =>
-				b
-					.setButtonText("复制命令")
-					.onClick(() => {
-						copyToClipboard(this.command);
-						new Notice("命令已复制到剪贴板");
-						this.resolve?.(false);
-						this.close();
-					}),
-			)
-			.addButton((b) =>
-				b
-					.setButtonText("确认执行")
-					.setCta()
-					.onClick(() => {
-						this.resolve?.(true);
-						this.close();
-					}),
-			);
+		if (this.rule.vendor) {
+			badgeRow.createSpan({
+				cls: "mae-ccm-agent-vendor",
+				text: `${this.rule.vendor}`,
+			});
+		}
+
+		// ── Command display ──
+		const cmdWrap = modalEl.createDiv({ cls: "mae-ccm-cmd-wrap" });
+		const cmdBox = cmdWrap.createDiv({ cls: "mae-ccm-cmd-box" });
+		const cmdHeader = cmdBox.createDiv({ cls: "mae-ccm-cmd-header" });
+		cmdHeader.createSpan({ cls: "mae-ccm-cmd-label", text: "COMMAND" });
+		cmdBox.createEl("code", { cls: "mae-ccm-code", text: this.command });
+
+		// ── Warning ──
+		const warnBox = modalEl.createDiv({ cls: "mae-ccm-warning" });
+		const warnIcon = warnBox.createDiv({ cls: "mae-ccm-warning-icon" });
+		setIcon(warnIcon, "alert-triangle");
+		warnBox.createEl("p", {
+			cls: "mae-ccm-warning-text",
+			text: "请仔细检查命令内容，确认后将在终端中执行。Agent 将直接修改磁盘上的文件。",
+		});
+
+		// ── Instruction file hint (optional) ──
+		if (this.instructionFile) {
+			const hintRow = modalEl.createDiv({ cls: "mae-ccm-hint" });
+			const hintIcon = hintRow.createDiv({ cls: "mae-ccm-hint-icon" });
+			setIcon(hintIcon, "file-text");
+			hintRow.createSpan({
+				cls: "mae-ccm-hint-text",
+				text: `指令文件: ${this.instructionFile}`,
+			});
+		}
+
+		// ── Footer ──
+		const footer = modalEl.createDiv({ cls: "mae-ccm-footer" });
+		const footerLeft = footer.createDiv({ cls: "mae-ccm-footer-left" });
+		const cancelBtn = footerLeft.createEl("button", { cls: "mae-ccm-btn mae-ccm-btn-cancel" });
+		const cancelInner = cancelBtn.createSpan({ cls: "mae-ccm-btn-inner" });
+		const cancelIcon = cancelInner.createSpan({ cls: "mae-ccm-btn-icon" });
+		setIcon(cancelIcon, "x");
+		cancelInner.createSpan({ text: "Cancel" });
+		cancelBtn.onclick = () => {
+			this.resolve?.(false);
+			this.close();
+		};
+
+		const footerRight = footer.createDiv({ cls: "mae-ccm-footer-right" });
+		const copyBtn = footerRight.createEl("button", { cls: "mae-ccm-btn mae-ccm-btn-copy" });
+		const copyInner = copyBtn.createSpan({ cls: "mae-ccm-btn-inner" });
+		const copyIcon = copyInner.createSpan({ cls: "mae-ccm-btn-icon" });
+		setIcon(copyIcon, "copy");
+		copyInner.createSpan({ text: "Copy Command" });
+		copyBtn.onclick = () => {
+			copyToClipboard(this.command);
+			new Notice("命令已复制到剪贴板");
+			this.resolve?.(false);
+			this.close();
+		};
+
+		const execBtn = footerRight.createEl("button", { cls: "mae-ccm-btn mae-ccm-btn-exec" });
+		const execInner = execBtn.createSpan({ cls: "mae-ccm-btn-inner" });
+		const execIcon = execInner.createSpan({ cls: "mae-ccm-btn-icon" });
+		setIcon(execIcon, "play");
+		execInner.createSpan({ text: "Execute" });
+		execBtn.onclick = () => {
+			this.resolve?.(true);
+			this.close();
+		};
 	}
 
 	onClose(): void {

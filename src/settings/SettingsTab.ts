@@ -64,9 +64,10 @@ class AddRuleModal extends Modal {
   }
 
   onOpen(): void {
-    const { contentEl } = this;
+    const { contentEl, modalEl } = this;
     contentEl.empty();
     contentEl.addClass("mae-add-rule-modal");
+    modalEl.addClass("mae-add-rule-modal");
 
     // Header
     const header = contentEl.createDiv({ cls: "mae-arm-header" });
@@ -76,10 +77,6 @@ class AddRuleModal extends Modal {
     const titleWrap = headerLeft.createDiv({});
     titleWrap.createDiv({ cls: "mae-arm-title", text: "添加命令规则" });
     titleWrap.createDiv({ cls: "mae-arm-subtitle", text: "自定义 Agent CLI 命令模板" });
-    const closeBtn = header.createDiv({ cls: "mae-arm-close" });
-    closeBtn.setText("");
-    setIcon(closeBtn, "x");
-    closeBtn.onclick = () => this.close();
 
     // Form
     const form = contentEl.createDiv({ cls: "mae-arm-form" });
@@ -208,7 +205,13 @@ export class SettingsTab extends PluginSettingTab {
     const pageHeader = containerEl.createDiv({ cls: "mae-settings-header" });
     const pageHeaderLeft = pageHeader.createDiv({ cls: "mae-settings-header-left" });
     const pageIcon = pageHeaderLeft.createDiv({ cls: "mae-settings-page-icon" });
-    setIcon(pageIcon, "mae-diya");
+    if (this.plugin.logoUrl) {
+      const img = pageIcon.createEl("img", { cls: "mae-logo-img" });
+      img.src = this.plugin.logoUrl;
+      img.alt = "MultiAIEdit";
+    } else {
+      setIcon(pageIcon, "mae-highlighter");
+    }
     pageHeaderLeft.createDiv({ cls: "mae-settings-page-title", text: "MultiAIEdit" });
 
     // --- Section 1: Basic ---
@@ -541,7 +544,11 @@ export class SettingsTab extends PluginSettingTab {
         t.inputEl.addClass("mae-api-key-input");
 
         // Toggle visibility button
-        const toggleBtn = t.inputEl.parentElement?.createEl("button", {
+        const inputParent = t.inputEl.parentElement;
+        if (inputParent) {
+          inputParent.style.position = "relative";
+        }
+        const toggleBtn = inputParent?.createEl("button", {
           cls: "mae-api-key-toggle",
         });
         if (toggleBtn) {

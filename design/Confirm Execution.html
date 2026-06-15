@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://unpkg.com" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.7.2/js/all.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      scrollbar-width: none;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+  </style>
+</head>
+
+<body class="bg-[#e8e8e8] min-h-screen flex items-center justify-center p-6">
+<link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style type="text/tailwindcss">
+  @theme {
+    --color-surface: #ffffff;
+    --color-surface-hover: #f5f5f5;
+    --color-border: #dcddde;
+    --color-text-primary: #1e1e1e;
+    --color-text-muted: #7a7d82;
+    --color-bg-base: #f8f8f8;
+    --color-overlay: rgba(30, 30, 30, 0.35);
+    --color-purple-bg: rgba(167,139,250,0.12);
+    --color-purple-border: rgba(167,139,250,0.25);
+    --color-purple-text: rgba(167,139,250,0.85);
+    --color-green-bg: rgba(52,168,83,0.08);
+    --color-green-border: rgba(52,168,83,0.30);
+    --color-green-text: rgba(30,120,50,0.92);
+    --color-red-border: rgba(215,58,73,0.25);
+    --color-red-text: rgba(180,40,55,0.90);
+    --color-warn-bg: rgba(251,146,60,0.08);
+    --color-warn-border: rgba(251,146,60,0.20);
+    --color-warn-text: rgba(251,146,60,0.85);
+  }
+</style>
+
+<style>
+  body { font-family: 'DM Sans', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+</style>
+
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-overlay flex items-center justify-center">
+  <!-- Modal Container -->
+  <div class="w-[500px] bg-surface border border-border rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col">
+
+    <!-- Header -->
+    <div class="px-5 py-3.5 border-b border-border flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 rounded-lg bg-purple-bg border border-purple-border flex items-center justify-center">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-purple-400/80"></i>
+        </div>
+        <div>
+          <h2 class="text-text-primary text-sm font-semibold">Confirm Execution</h2>
+          <p class="text-text-muted text-[10px] mono mt-0.5">Claude Code · about to run in Terminal</p>
+        </div>
+      </div>
+      <button class="w-7 h-7 rounded-md hover:bg-surface-hover flex items-center justify-center text-text-muted hover:text-text-primary transition-colors">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+
+    <!-- Agent badge row -->
+    <div class="px-5 pt-3 pb-1 flex items-center gap-2">
+      <div class="w-5 h-5 rounded bg-purple-bg border border-purple-border flex items-center justify-center">
+        <span class="text-[10px] font-bold mono text-purple-400/80">C</span>
+      </div>
+      <span class="text-text-primary text-[12px] font-semibold">Claude Code</span>
+      <span class="text-[8px] mono px-1.5 py-0.5 rounded-full bg-green-400/10 text-green-600/80 border border-green-400/20">installed</span>
+    </div>
+
+    <!-- Command display -->
+    <div class="px-5 py-2">
+      <div class="bg-bg-base border border-border rounded-lg p-3 max-h-[220px] overflow-y-auto scrollbar-thin">
+        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-border/60">
+          <span class="text-[9px] mono text-text-muted/60 uppercase tracking-wider">Command</span>
+        </div>
+        <code class="mono text-[12px] text-text-primary leading-[1.7] whitespace-pre-wrap break-all">
+claude --print "Edit the file at /Users/jingjing/Documents/notes/architecture.md according to the review instructions in /tmp/mae-instruction-abc123.md. The original file is at /Users/jingjing/Documents/notes/architecture.md."
+        </code>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="px-5 py-2">
+      <div class="flex items-start gap-2 bg-warn-bg border border-warn-border rounded-lg px-3 py-2.5">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-warn-text mt-0.5 shrink-0"></i>
+        <p class="text-[11px] text-text-primary/80 leading-[1.5]">
+          请仔细检查命令内容，确认后将在终端中执行。Agent 将直接修改磁盘上的文件。
+        </p>
+      </div>
+    </div>
+
+    <!-- Instruction file hint (optional, shown when instruction file exists) -->
+    <div class="px-5 py-1">
+      <div class="flex items-center gap-2 text-text-muted">
+        <i data-lucide="file-text" class="w-3 h-3 shrink-0"></i>
+        <span class="text-[10px] mono">指令文件: /tmp/mae-instruction-abc123.md</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 py-3 border-t border-border flex items-center justify-between shrink-0 mt-auto">
+      <!-- Left: cancel -->
+      <button class="text-[10px] mono font-medium px-3 py-2 rounded-md border border-border text-text-muted hover:text-red-text hover:border-red-border hover:bg-red-50 transition-all">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="x" class="w-3 h-3"></i>
+          Cancel
+        </span>
+      </button>
+
+      <!-- Right: copy + execute -->
+      <div class="flex items-center gap-2">
+        <button class="text-[10px] mono font-medium px-3 py-2 rounded-md border border-border text-text-muted hover:text-text-primary hover:border-text-muted/30 transition-all">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3 h-3"></i>
+            Copy Command
+          </span>
+        </button>
+        <button class="text-[11px] mono font-semibold px-4 py-2 rounded-md bg-green-bg border border-green-border text-green-text hover:bg-green-500/15 transition-all">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3 h-3"></i>
+            Execute
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>if (window.lucide) lucide.createIcons();</script>
+</html>

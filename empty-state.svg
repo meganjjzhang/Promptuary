@@ -1,0 +1,109 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="240"
+    height="240"
+    viewBox="0 0 240 240"
+    fill="none">
+
+    <!-- Ghost halo — dashed, muted, gapped arcs, very slow rotation -->
+    <g id="halo">
+        <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 120 120"
+            to="360 120 120"
+            dur="90s"
+            repeatCount="indefinite"/>
+
+        <path
+            d="M120 52
+               A68 68 0 0 1 186.51 105.86"
+            stroke="#D4D4DE"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-dasharray="8 12"
+            opacity="0.5"/>
+
+        <path
+            d="M188 120
+               A68 68 0 0 1 134.14 186.51"
+            stroke="#D4D4DE"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-dasharray="8 12"
+            opacity="0.35"/>
+
+        <path
+            d="M120 188
+               A68 68 0 0 1 53.49 134.14"
+            stroke="#D4D4DE"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-dasharray="8 12"
+            opacity="0.5"/>
+
+        <path
+            d="M52 120
+               A68 68 0 0 1 105.86 53.49"
+            stroke="#D4D4DE"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-dasharray="8 12"
+            opacity="0.35"/>
+    </g>
+
+    <!-- Ghost network — faded dashed lines, hollow nodes, no drawing animation (empty) -->
+    <g id="network" opacity="0.4">
+
+        <!-- Top path -->
+        <path
+            d="M120 72
+               C130 96 144 108 168 120"
+            stroke="#9B95B8"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-dasharray="6 8"/>
+
+        <!-- Right path -->
+        <path
+            d="M168 120
+               C144 132 130 144 120 168"
+            stroke="#9B95B8"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-dasharray="6 8"/>
+
+        <!-- Bottom path -->
+        <path
+            d="M120 168
+               C108 144 96 132 72 120"
+            stroke="#9B95B8"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-dasharray="6 8"/>
+
+        <!-- Left path -->
+        <path
+            d="M72 120
+               C96 108 108 96 120 72"
+            stroke="#9B95B8"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-dasharray="6 8"/>
+
+        <!-- Hollow nodes (outline only) -->
+        <circle cx="120" cy="72" r="8" stroke="#9B95B8" stroke-width="3" fill="none"/>
+        <circle cx="168" cy="120" r="8" stroke="#9B95B8" stroke-width="3" fill="none"/>
+        <circle cx="120" cy="168" r="8" stroke="#9B95B8" stroke-width="3" fill="none"/>
+        <circle cx="72" cy="120" r="8" stroke="#9B95B8" stroke-width="3" fill="none"/>
+    </g>
+
+    <!-- Center placeholder dot — faint, pulsing gently to say "waiting for input" -->
+    <circle cx="120" cy="120" r="4" fill="#C4C0D8" opacity="0.5">
+        <animate attributeName="opacity" values="0.3;0.6;0.3"
+            dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="3;5;3"
+            dur="3s" repeatCount="indefinite"/>
+    </circle>
+
+</svg>

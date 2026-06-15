@@ -88,11 +88,32 @@ export default class MultiAIEditPlugin extends Plugin {
   private fileChangeMonitor: FileChangeMonitor | null = null;
   private originalTextBeforeAgent: string | null = null;
 
+  /** Logo SVG data URI (read once at load) */
+  logoUrl = "";
+
+  /** Empty state SVG data URI for sidebar placeholder */
+  emptyStateUrl = "";
+
+  /** Execution state visible to sidebar for status display */
+  executionState: null | { type: "agent" | "api" } = null;
+
   async onload(): Promise<void> {
     await this.loadSettings();
 
     // Register custom icons
     registerIcons();
+
+    // Load plugin logo as data URI for sidebar & settings
+    try {
+      const svgContent = await this.app.vault.adapter.read(`${this.manifest.dir}/logo.svg`);
+      this.logoUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgContent)))}`;
+    } catch { /* logo optional */ }
+
+    // Load empty state illustration as data URI
+    try {
+      const svgContent = await this.app.vault.adapter.read(`${this.manifest.dir}/empty-state.svg`);
+      this.emptyStateUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgContent)))}`;
+    } catch { /* empty state optional */ }
 
     this.store = new AnnotationStore(this.app, () => this.settings.sidecarDir);
     this.store.registerVaultEvents();
@@ -460,7 +481,8 @@ export default class MultiAIEditPlugin extends Plugin {
     const confirmed = await new CommandConfirmModal(
       this.app,
       command,
-      rule.label,
+      rule,
+      instructionFilePath,
     ).openForConfirmation();
 
     if (!confirmed) return;
@@ -566,27 +588,50 @@ export default class MultiAIEditPlugin extends Plugin {
     new Notice(`${rule.label} 命令已复制到剪贴板`);
   }
 
-  /** Start monitoring a file for changes after CLI execution */
+  /** Start monitoring a file for changes after CLI execution.
+   *  After each detected change + Diff confirmation, restarts monitoring
+   *  so subsequent batched writes from the Agent are also caught. */
   private startFileMonitoring(filePath: string): void {
     this.fileChangeMonitor?.cancel();
     this.fileChangeMonitor = new FileChangeMonitor();
 
     new Notice("正在监听文件变更（5 分钟超时）…");
 
-    this.fileChangeMonitor.startMonitor(this.app, filePath).then(async (detected) => {
-      if (detected) {
-        new Notice("检测到文件变更，正在生成 Diff…");
-        await this.showDiffForFile(filePath);
-      } else {
-        new Notice("未检测到文件变更，请手动检查");
+    const loop = async (): Promise<void> => {
+      const monitor = new FileChangeMonitor();
+      this.fileChangeMonitor = monitor;
+
+      const detected = await monitor.startMonitor(this.app, filePath);
+      if (!detected) {
+        new Notice("监听超时，未检测到更多变更");
+        this.fileChangeMonitor = null;
+        return;
       }
-      this.fileChangeMonitor = null;
-    });
+
+      new Notice("检测到文件变更，正在生成 Diff…");
+      await this.showDiffForFile(filePath);
+
+      // If user accepted/rejected and the agent might still be writing,
+      // restart monitoring automatically unless originalText was cleared
+      // (which signals the user chose "reject" / flow is done).
+      if (this.originalTextBeforeAgent !== null) {
+        // Still have a snapshot — continue monitoring for next batch
+        loop();
+      } else {
+        this.fileChangeMonitor = null;
+      }
+    };
+
+    loop();
   }
 
   /**
    * Show Diff modal for a file, comparing the saved original text
    * with the current file content.
+   *
+   * After accept: updates originalTextBeforeAgent to the accepted text,
+   * so subsequent agent batches diff against the latest confirmed state.
+   * After reject: clears originalTextBeforeAgent to stop the monitor loop.
    */
   async showDiffForFile(filePath: string): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(filePath);
@@ -599,7 +644,7 @@ export default class MultiAIEditPlugin extends Plugin {
     }
 
     const modified = await this.app.vault.read(file);
-    this.originalTextBeforeAgent = null;
+    // Don't clear originalTextBeforeAgent yet — keep it as base for next diff
 
     // Quick check: any changes?
     if (original === modified) {
@@ -617,9 +662,10 @@ export default class MultiAIEditPlugin extends Plugin {
 
     switch (result.action) {
       case "accept-all": {
-        // File already has the new content — re-anchor then update baseline
         const finalText = modified;
         await this.reanchorAndConfirm(filePath, original, finalText);
+        // Update snapshot to the accepted text for next batch diff
+        this.originalTextBeforeAgent = finalText;
         new Notice("已接受所有修改");
         break;
       }
@@ -628,13 +674,15 @@ export default class MultiAIEditPlugin extends Plugin {
           await this.app.vault.modify(file, result.mergedText);
           const finalText = result.mergedText;
           await this.reanchorAndConfirm(filePath, original, finalText);
+          this.originalTextBeforeAgent = finalText;
           new Notice("已应用选中的修改");
         }
         break;
       }
       case "reject": {
-        // Restore original — no re-anchor needed (back to baseline)
+        // Restore original, clear snapshot to stop the monitor loop
         await this.app.vault.modify(file, original);
+        this.originalTextBeforeAgent = null;
         this.refreshDecorations();
         new Notice("已回滚所有修改");
         break;
@@ -705,39 +753,57 @@ export default class MultiAIEditPlugin extends Plugin {
     const updates = reanchorAnnotations(oldText, finalText, data.annotations, this.settings.contextSpan);
 
     let healed = 0;
-    let stillDrifted = 0;
+    let reviewRemoved = 0;
+    let readingRemoved = 0;
 
     for (const update of updates) {
+      const ann = data.annotations.find((a) => a.id === update.id);
+      if (!ann) continue;
+
       if (update.status === "healed" && Object.keys(update.patch).length > 0) {
+        // Keep review annotations when the diff mapper can still identify their
+        // target range. This intentionally preserves partially changed review
+        // anchors, including similarity 0.3~0.7; only fully drifted reviews are
+        // considered consumed and removed below.
         await this.store.updateAnnotation(filePath, update.id, update.patch);
         healed++;
       } else if (update.status === "drifted") {
-        // Step 2: Try fuzzyLocate fallback (方案 A)
-        const ann = data.annotations.find((a) => a.id === update.id);
-        if (ann) {
-          const fuzzyResult = fuzzyLocate(finalText, ann);
-          if (fuzzyResult.status === "auto-healed" && fuzzyResult.from !== undefined && fuzzyResult.to !== undefined) {
-            // Extract new anchor data from the fuzzy-matched position
-            const span = this.settings.contextSpan;
-            const ctxStart = Math.max(0, fuzzyResult.from - span);
-            const ctxEnd = Math.min(finalText.length, fuzzyResult.to + span);
-            const newSelectedText = finalText.slice(fuzzyResult.from, fuzzyResult.to);
-            const newContextBefore = finalText.slice(ctxStart, fuzzyResult.from);
-            const newContextAfter = finalText.slice(fuzzyResult.to, ctxEnd);
-            const newLineHint = computeLineHint(finalText, fuzzyResult.from);
-            const newOccIndex = computeOccurrenceIndex(finalText, newSelectedText, fuzzyResult.from);
+        if (ann.type === "review") {
+          // Review annotations are actionable instructions. If their target
+          // text cannot be mapped after a confirmed Diff, treat them as consumed
+          // by the edit and remove the stale review record.
+          await this.store.removeAnnotation(filePath, update.id);
+          reviewRemoved++;
+          continue;
+        }
 
-            await this.store.updateAnnotation(filePath, update.id, {
-              selectedText: newSelectedText,
-              contextBefore: newContextBefore,
-              contextAfter: newContextAfter,
-              lineHint: newLineHint,
-              occurrenceIndex: newOccIndex,
-            });
-            healed++;
-          } else {
-            stillDrifted++;
-          }
+        // Step 2: Try fuzzyLocate fallback (方案 A) for reading annotations only.
+        const fuzzyResult = fuzzyLocate(finalText, ann);
+        if (fuzzyResult.status === "auto-healed" && fuzzyResult.from !== undefined && fuzzyResult.to !== undefined) {
+          // Extract new anchor data from the fuzzy-matched position
+          const span = this.settings.contextSpan;
+          const ctxStart = Math.max(0, fuzzyResult.from - span);
+          const ctxEnd = Math.min(finalText.length, fuzzyResult.to + span);
+          const newSelectedText = finalText.slice(fuzzyResult.from, fuzzyResult.to);
+          const newContextBefore = finalText.slice(ctxStart, fuzzyResult.from);
+          const newContextAfter = finalText.slice(fuzzyResult.to, ctxEnd);
+          const newLineHint = computeLineHint(finalText, fuzzyResult.from);
+          const newOccIndex = computeOccurrenceIndex(finalText, newSelectedText, fuzzyResult.from);
+
+          await this.store.updateAnnotation(filePath, update.id, {
+            selectedText: newSelectedText,
+            contextBefore: newContextBefore,
+            contextAfter: newContextAfter,
+            lineHint: newLineHint,
+            occurrenceIndex: newOccIndex,
+          });
+          healed++;
+        } else {
+          // If a reading annotation cannot be fuzzy-located, its referenced
+          // text was most likely deleted/replaced. Remove it instead of asking
+          // the user to handle a meaningless drift state.
+          await this.store.removeAnnotation(filePath, update.id);
+          readingRemoved++;
         }
       }
     }
@@ -750,13 +816,11 @@ export default class MultiAIEditPlugin extends Plugin {
     this.refreshDecorations();
 
     // Notify user
-    if (healed > 0 && stillDrifted > 0) {
-      new Notice(`已自动修复 ${healed} 条批注位置，${stillDrifted} 条仍需手动检查`);
-    } else if (healed > 0) {
-      new Notice(`已自动修复 ${healed} 条批注位置`);
-    } else if (stillDrifted > 0) {
-      new Notice(`${stillDrifted} 条批注位置已漂移，请手动检查`);
-    }
+    const parts: string[] = [];
+    if (healed > 0) parts.push(`已自动修复 ${healed} 条批注位置`);
+    if (reviewRemoved > 0) parts.push(`${reviewRemoved} 条批阅意见已执行并自动移除`);
+    if (readingRemoved > 0) parts.push(`${readingRemoved} 条失效阅读批注已自动移除`);
+    if (parts.length > 0) new Notice(parts.join("，"));
   }
 
   // ---------- selection handling ----------
@@ -1152,10 +1216,41 @@ export default class MultiAIEditPlugin extends Plugin {
       includeReadingNotes: this.settings.includeReadingNotesInExport,
     });
     if (target) {
-      const f = this.app.vault.getAbstractFileByPath(target);
-      if (f instanceof TFile) {
-        await this.app.workspace.getLeaf(true).openFile(f);
-      }
+      this.openExportFolder();
+    }
+  }
+
+  /** Open export directory in Finder / Explorer after exporting. */
+  private openExportFolder(): void {
+    if (isMobile()) return;
+
+    const adapter = this.app.vault.adapter as any;
+    const exportDir: string | undefined = typeof adapter.getFullPath === "function"
+      ? adapter.getFullPath(this.settings.exportDir)
+      : typeof adapter.getBasePath === "function"
+        ? `${adapter.getBasePath()}/${this.settings.exportDir}`
+        : adapter.basePath
+          ? `${adapter.basePath}/${this.settings.exportDir}`
+          : undefined;
+
+    if (!exportDir) {
+      new Notice("无法获取导出目录路径");
+      return;
+    }
+
+    try {
+      const { exec } = require("child_process") as typeof import("child_process");
+      const quotedDir = `"${exportDir.replace(/(["\\$`])/g, "\\$1")}"`;
+      const cmd = process.platform === "darwin"
+        ? `open ${quotedDir}`
+        : process.platform === "win32"
+          ? `explorer ${quotedDir}`
+          : `xdg-open ${quotedDir}`;
+      exec(cmd, (err) => {
+        if (err) new Notice("无法打开导出文件夹");
+      });
+    } catch {
+      new Notice("无法打开导出文件夹");
     }
   }
 

@@ -21,6 +21,8 @@ export interface AnchorUpdate {
   id: string;
   /** "healed" = successfully re-anchored, "drifted" = cannot map */
   status: "healed" | "drifted";
+  /** Similarity between the old selected text and the mapped new selected text. */
+  similarity?: number;
   /** Updated fields to patch into the annotation */
   patch: Partial<Pick<Annotation,
     "selectedText" | "contextBefore" | "contextAfter" | "lineHint" | "occurrenceIndex"
@@ -447,8 +449,10 @@ export function reanchorAnnotations(
     const similarity = computeSimilarity(ann.selectedText, newSelectedText);
 
     if (similarity < 0.3) {
-      // Too different — the mapped region doesn't correspond to the original annotation
-      results.push({ id: ann.id, status: "drifted", patch: {} });
+      // Too different — the mapped region doesn't correspond to the original annotation.
+      // For review annotations, the caller treats this as "the reviewed text was
+      // removed/replaced" and can delete the consumed review record.
+      results.push({ id: ann.id, status: "drifted", similarity, patch: {} });
       continue;
     }
 
@@ -465,6 +469,7 @@ export function reanchorAnnotations(
     results.push({
       id: ann.id,
       status: "healed",
+      similarity,
       patch: {
         selectedText: newSelectedText,
         contextBefore: newContextBefore,
