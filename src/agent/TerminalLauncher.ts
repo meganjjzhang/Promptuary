@@ -113,9 +113,9 @@ export class FileChangeMonitor {
 	): Promise<boolean> {
 		this.status = "running";
 
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		// eslint-disable-next-line @typescript-eslint/no-var-requires -- Node.js built-in, not available as ESM import in Obsidian plugin
 		const fs = require("fs") as typeof import("fs");
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		// eslint-disable-next-line @typescript-eslint/no-var-requires -- Node.js built-in, not available as ESM import in Obsidian plugin
 		const nodePath = require("path") as typeof import("path");
 
 		const vaultPath = (app.vault.adapter as unknown as { basePath?: string }).basePath ?? "";

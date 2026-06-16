@@ -1282,8 +1282,9 @@ export default class PromptuaryPlugin extends Plugin {
       }
     }
     if (leaf) {
-      if (typeof this.app.workspace.revealLeaf === "function") {
-        this.app.workspace.revealLeaf(leaf);
+      const ws = this.app.workspace as unknown as { revealLeaf?(leaf: import("obsidian").WorkspaceLeaf): Promise<void> };
+      if (typeof ws.revealLeaf === "function") {
+        await ws.revealLeaf(leaf);
       } else {
         // Fallback for older Obsidian versions
         this.app.workspace.setActiveLeaf(leaf, { focus: true });

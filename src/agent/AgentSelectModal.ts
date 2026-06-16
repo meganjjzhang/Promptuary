@@ -135,10 +135,9 @@ export class AgentSelectModal extends Modal {
 
 		const configBtn = footer.createEl("button", { cls: "prm-asm-config-btn", text: t("agent.select.addCustom") });
 		configBtn.onclick = () => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Obsidian internal API, no public type available
-			(this.app as any).setting?.open();
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Obsidian internal API, no public type available
-			(this.app as any).setting?.openTabById?.("promptuary");
+			const appInternal = this.app as unknown as { setting?: { open(): void; openTabById?(id: string): void } };
+			appInternal.setting?.open();
+			appInternal.setting?.openTabById?.("promptuary");
 			this.resolve?.({ rule: null });
 			this.close();
 		};

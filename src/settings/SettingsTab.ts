@@ -304,11 +304,10 @@ export class SettingsTab extends PluginSettingTab {
             await this.plugin.saveSettings();
             initI18n(v as LanguageSetting);
             // Reload plugin to apply language change
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const app = this.app as any;
-            if (app.plugins?.disablePlugin && app.plugins?.enablePlugin) {
-              await app.plugins.disablePlugin("promptuary");
-              await app.plugins.enablePlugin("promptuary");
+            const appInternal = this.app as unknown as { plugins?: { disablePlugin(id: string): Promise<void>; enablePlugin(id: string): Promise<void> } };
+            if (appInternal.plugins?.disablePlugin && appInternal.plugins?.enablePlugin) {
+              await appInternal.plugins.disablePlugin("promptuary");
+              await appInternal.plugins.enablePlugin("promptuary");
             }
           });
       });

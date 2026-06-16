@@ -325,11 +325,9 @@ export class SidebarView extends ItemView {
     const settingsBtn = row.createEl("button", { cls: "prm-header-settings" });
     setIcon(settingsBtn, "settings");
     settingsBtn.onclick = () => {
-      // Open plugin settings
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Obsidian internal API, no public type available
-      (this.app as any).setting?.open();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Obsidian internal API, no public type available
-      (this.app as any).setting?.openTabById?.("promptuary");
+      const appInternal = this.app as unknown as { setting?: { open(): void; openTabById?(id: string): void } };
+      appInternal.setting?.open();
+      appInternal.setting?.openTabById?.("promptuary");
     };
 
     // Mode capsule (inside header, below title row)
@@ -438,8 +436,7 @@ export class SidebarView extends ItemView {
           });
       });
       const rect = moreBtn.getBoundingClientRect();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Obsidian Menu.showAtPosition accepts {x,y} but types require MouseEvt
-      menu.showAtPosition({ x: rect.left, y: rect.top - 4 } as any);
+      menu.showAtPosition({ x: rect.left, y: rect.top - 4 });
     };
 
     // Status hint
