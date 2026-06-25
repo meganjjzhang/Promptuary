@@ -75,13 +75,20 @@ After confirmation, annotation positions are automatically re-anchored:
 
 ### 1. Installation
 
-> Currently a development release — not yet on the Obsidian Community Plugins marketplace.
+**Obsidian Community Plugins (Recommended)**
 
-**Manual install:**
+Promptuary is available on the [Obsidian Community Plugins marketplace](https://community.obsidian.md/plugins/promptuary):
+
+1. Open **Settings → Community plugins**
+2. Turn off **Restricted mode** if you haven't already
+3. Click **Browse** → search for **"Promptuary"**
+4. Click **Install**, then **Enable**
+
+**Manual install (for pre-release / development builds):**
 
 ```bash
-git clone https://github.com/your-repo/obsidian-promptuary
-cd obsidian-promptuary
+git clone https://github.com/meganjjzhang/Promptuary
+cd Promptuary
 npm install
 npm run build
 ```
