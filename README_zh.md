@@ -6,6 +6,10 @@
 
 > Obsidian 阅读标注与 AI 批量批阅插件。阅读时高亮记笔记，批阅时留下修改意见，多条意见一键交给外部 AI 执行修改。
 
+<p align="center">
+  <img src="img/graph.png">
+</p>
+
 [English](README.md)
 
 ---

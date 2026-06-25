@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promptuary 小红书封面</title>
+  <style>
+    :root {
+      --bg: #1f1e2d;
+      --surface: #282738;
+      --surface-2: #302d45;
+      --surface-3: #242333;
+      --border: #3c3a51;
+      --border-soft: rgba(185, 171, 255, 0.16);
+      --text: #f8f7ff;
+      --muted: #9693ad;
+      --dim: #68657e;
+      --purple: #a98bff;
+      --purple-bright: #b89cff;
+      --purple-deep: #4c3b71;
+      --blue: #4f72ff;
+      --cyan: #20e8e3;
+      --orange: #ea845d;
+      --green: #89e6a7;
+      --red: #ee7a83;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #11111b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+    }
+
+    .poster {
+      position: relative;
+      width: 1024px;
+      height: 1440px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 21% 52%, rgba(169, 139, 255, 0.14), transparent 26%),
+        radial-gradient(circle at 75% 64%, rgba(79, 114, 255, 0.12), transparent 28%),
+        linear-gradient(180deg, #202030 0%, #1e1d2b 58%, #1a1a27 100%);
+      isolation: isolate;
+    }
+
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 78%);
+      pointer-events: none;
+    }
+
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.16;
+      background-image: radial-gradient(rgba(255,255,255,0.28) 0.6px, transparent 0.6px);
+      background-size: 8px 8px;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+      z-index: 2;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 58px 54px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px;
+      border: 1px solid rgba(169, 139, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(45, 42, 64, 0.72);
+      color: #d9d0ff;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .logo-mark {
+      width: 25px;
+      height: 25px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #9a7bff, #5874ff);
+      position: relative;
+      box-shadow: 0 0 22px rgba(154, 123, 255, 0.42);
+    }
+
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border: 4px solid #eef0ff;
+      border-left: 0;
+      border-bottom: 0;
+      transform: rotate(45deg);
+      left: 6px;
+      top: 5px;
+      border-radius: 2px;
+    }
+
+    .page-tag {
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(169, 139, 255, 0.16);
+      border: 1px solid rgba(169, 139, 255, 0.28);
+      color: #dfd7ff;
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .headline {
+      position: relative;
+      z-index: 3;
+      margin: 66px 48px 0;
+      font-weight: 1000;
+      line-height: 1.12;
+      letter-spacing: 0;
+      font-size: 72px;
+    }
+
+    .headline .line {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .headline .purple {
+      color: var(--purple-bright);
+      text-shadow: 0 0 34px rgba(169, 139, 255, 0.18);
+    }
+
+    .headline .focus {
+      position: relative;
+      display: inline-block;
+      padding: 0 14px 8px 12px;
+      margin-left: -12px;
+    }
+
+    .headline .focus::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8px;
+      height: 64px;
+      background: rgba(169, 139, 255, 0.23);
+      z-index: -1;
+    }
+
+    .headline .focus::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 6px;
+      background: var(--purple-bright);
+      border-radius: 999px;
+      box-shadow: 0 0 18px rgba(169, 139, 255, 0.55);
+    }
+
+    .subline {
+      position: relative;
+      z-index: 3;
+      margin: 28px 54px 0;
+      color: #cbc8df;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subline strong {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .hero-flow {
+      position: relative;
+      z-index: 3;
+      height: 680px;
+      margin-top: 48px;
+    }
+
+    .review-stack {
+      position: absolute;
+      left: 45px;
+      top: 76px;
+      width: 350px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .review-card {
+      position: relative;
+      min-height: 150px;
+      padding: 20px 20px 17px;
+      border-radius: 10px;
+      background: rgba(41, 40, 58, 0.86);
+      border: 1px solid rgba(160, 154, 193, 0.18);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+      overflow: hidden;
+    }
+
+    .review-card::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      bottom: 18px;
+      left: 0;
+      width: 4px;
+      border-radius: 999px;
+      background: rgba(234, 132, 93, 0.72);
+    }
+
+    .pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(234, 132, 93, 0.12);
+      border: 1px solid rgba(234, 132, 93, 0.38);
+      color: #ef9d77;
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    .quote {
+      min-height: 43px;
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.045);
+      color: #c8c5df;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.32;
+      margin-bottom: 12px;
+    }
+
+    .comment {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #dad8ec;
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .pencil {
+      width: 21px;
+      height: 21px;
+      flex: 0 0 auto;
+      border: 3px solid #a7a4c7;
+      border-top: 0;
+      border-left: 0;
+      transform: rotate(45deg);
+      border-radius: 3px;
+      opacity: 0.9;
+    }
+
+    .file-line {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      color: rgba(151, 148, 177, 0.78);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .agent-column {
+      position: absolute;
+      left: 444px;
+      top: 124px;
+      width: 154px;
+      display: grid;
+      justify-items: center;
+      gap: 33px;
+    }
+
+    .burst {
+      width: 104px;
+      height: 104px;
+      position: relative;
+    }
+
+    .burst span {
+      position: absolute;
+      left: 49px;
+      top: 7px;
+      width: 9px;
+      height: 90px;
+      border-radius: 999px;
+      background: var(--orange);
+      transform-origin: 50% 45px;
+    }
+
+    .burst span:nth-child(2) { transform: rotate(30deg); }
+    .burst span:nth-child(3) { transform: rotate(60deg); }
+    .burst span:nth-child(4) { transform: rotate(90deg); }
+    .burst span:nth-child(5) { transform: rotate(120deg); }
+    .burst span:nth-child(6) { transform: rotate(150deg); }
+
+    .agent-badge {
+      position: relative;
+      width: 98px;
+      height: 98px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #5574ff 5%, #3158ee 92%);
+      box-shadow: 0 20px 45px rgba(44, 74, 220, 0.42);
+    }
+
+    .agent-badge::before {
+      content: "";
+      position: absolute;
+      inset: 20px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .agent-badge::after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      right: 24px;
+      top: 31px;
+      border-radius: 50%;
+      background: #f8fbff;
+      box-shadow: 21px 22px 0 -19px var(--cyan);
+    }
+
+    .terminal-badge {
+      width: 88px;
+      height: 88px;
+      border-radius: 26px;
+      background:
+        linear-gradient(var(--bg), var(--bg)) padding-box,
+        linear-gradient(135deg, #1c91ff, #9b61ff 48%, #ff7ab4) border-box;
+      border: 7px solid transparent;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 22px 44px rgba(0, 0, 0, 0.24);
+    }
+
+    .terminal-badge span {
+      position: relative;
+      width: 42px;
+      height: 42px;
+    }
+
+    .terminal-badge span::before,
+    .terminal-badge span::after {
+      content: "";
+      position: absolute;
+      height: 9px;
+      width: 42px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #52a4ff, #b69aff);
+      transform-origin: right center;
+      right: 0;
+    }
+
+    .terminal-badge span::before {
+      top: 7px;
+      transform: rotate(27deg);
+    }
+
+    .terminal-badge span::after {
+      bottom: 7px;
+      transform: rotate(-27deg);
+    }
+
+    .flow-label {
+      width: 146px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(42, 40, 60, 0.92);
+      border: 1px solid rgba(169, 139, 255, 0.22);
+      color: #dcd5ff;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .diff-panel {
+      position: absolute;
+      right: -42px;
+      top: 84px;
+      width: 402px;
+      height: 520px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(39, 38, 55, 0.9);
+      border: 1px solid rgba(160, 154, 193, 0.16);
+      box-shadow: 0 28px 64px rgba(0, 0, 0, 0.34);
+    }
+
+    .diff-header {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(160, 154, 193, 0.12);
+      background: rgba(34, 33, 49, 0.8);
+    }
+
+    .compare-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(79, 114, 255, 0.16);
+      border: 1px solid rgba(79, 114, 255, 0.26);
+      position: relative;
+    }
+
+    .compare-icon::before,
+    .compare-icon::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      width: 12px;
+      height: 7px;
+      border: 2px solid #8eb0ff;
+      border-radius: 4px;
+    }
+
+    .compare-icon::before {
+      top: 6px;
+      border-right: 0;
+    }
+
+    .compare-icon::after {
+      bottom: 6px;
+      border-left: 0;
+    }
+
+    .diff-title {
+      color: #dbd9ee;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .diff-subtitle {
+      margin-top: 4px;
+      color: rgba(150, 147, 173, 0.72);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .hunk {
+      margin: 16px;
+      border: 1px solid rgba(160, 154, 193, 0.12);
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .hunk-head {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      background: rgba(30, 29, 43, 0.82);
+      color: rgba(150, 147, 173, 0.8);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .line {
+      display: flex;
+      align-items: center;
+      min-height: 31px;
+      padding: 0 12px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(205, 202, 226, 0.58);
+      white-space: nowrap;
+    }
+
+    .line .num {
+      flex: 0 0 32px;
+      color: rgba(150, 147, 173, 0.34);
+      text-align: right;
+      margin-right: 12px;
+    }
+
+    .line.del {
+      color: rgba(255, 186, 191, 0.72);
+      background: rgba(238, 122, 131, 0.09);
+      border-left: 3px solid rgba(238, 122, 131, 0.48);
+    }
+
+    .line.add {
+      color: rgba(185, 248, 205, 0.74);
+      background: rgba(137, 230, 167, 0.08);
+      border-left: 3px solid rgba(137, 230, 167, 0.46);
+    }
+
+    .diff-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: rgba(30, 29, 43, 0.92);
+      border-top: 1px solid rgba(160, 154, 193, 0.12);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(150, 147, 173, 0.78);
+    }
+
+    .accept {
+      padding: 9px 13px;
+      border-radius: 8px;
+      color: #c8f7d6;
+      background: rgba(137, 230, 167, 0.12);
+      border: 1px solid rgba(137, 230, 167, 0.24);
+    }
+
+    .arrow {
+      position: absolute;
+      z-index: 4;
+      color: rgba(169, 139, 255, 0.8);
+      font-size: 48px;
+      font-weight: 1000;
+      line-height: 1;
+      text-shadow: 0 0 22px rgba(169, 139, 255, 0.32);
+    }
+
+    .arrow.one {
+      left: 398px;
+      top: 285px;
+    }
+
+    .arrow.two {
+      right: 391px;
+      top: 285px;
+    }
+
+    .bottom-strip {
+      position: absolute;
+      z-index: 4;
+      left: 48px;
+      right: 48px;
+      bottom: 46px;
+      height: 126px;
+      border-radius: 28px;
+      background: rgba(43, 41, 62, 0.72);
+      border: 1px solid rgba(169, 139, 255, 0.22);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.18fr 1fr;
+      align-items: center;
+      padding: 0 30px;
+      gap: 18px;
+      box-shadow: 0 22px 54px rgba(0, 0, 0, 0.22);
+    }
+
+    .capability {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #e9e5ff;
+      font-size: 21px;
+      font-weight: 900;
+      line-height: 1.18;
+    }
+
+    .capability .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: var(--purple-bright);
+      box-shadow: 0 0 20px rgba(169, 139, 255, 0.5);
+    }
+
+    .caption {
+      position: absolute;
+      z-index: 4;
+      left: 58px;
+      bottom: 194px;
+      color: rgba(218, 214, 238, 0.8);
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .caption strong {
+      color: #ffffff;
+      font-weight: 1000;
+    }
+  </style>
+</head>
+<body>
+  <main class="poster" aria-label="Promptuary 小红书封面">
+    <div class="topbar">
+      <div class="eyebrow"><span class="logo-mark"></span>Obsidian × AI Agent</div>
+      <div class="page-tag">01/06</div>
+    </div>
+
+    <h1 class="headline">
+      <span class="line"><span class="purple">不用再</span>一点点</span>
+      <span class="line">告诉 AI 怎么改了</span>
+      <span class="line"><span class="purple">Obsidian 批注</span></span>
+      <span class="line"><span class="focus">直接变成执行指令</span></span>
+    </h1>
+
+    <p class="subline">Promptuary：边读边批注，批完让 <strong>Agent 接着改</strong></p>
+
+    <section class="hero-flow" aria-label="批注到执行的工作流">
+      <div class="review-stack">
+        <article class="review-card">
+          <div class="pill">批阅</div>
+          <div class="quote">这里逻辑跳太快</div>
+          <div class="comment"><span class="pencil"></span>补一个实际案例</div>
+          <div class="file-line"><span>Product Spec.md</span><span>L.81</span></div>
+        </article>
+
+        <article class="review-card">
+          <div class="pill">批阅</div>
+          <div class="quote">术语前后不一致</div>
+          <div class="comment"><span class="pencil"></span>统一为 Agent 执行</div>
+          <div class="file-line"><span>Draft.md</span><span>L.126</span></div>
+        </article>
+
+        <article class="review-card">
+          <div class="pill">批阅</div>
+          <div class="quote">结论缺少上下文</div>
+          <div class="comment"><span class="pencil"></span>加一段原因说明</div>
+          <div class="file-line"><span>Research.md</span><span>L.187</span></div>
+        </article>
+      </div>
+
+      <div class="arrow one">→</div>
+      <div class="agent-column">
+        <div class="burst" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="agent-badge" aria-label="Promptuary"></div>
+        <div class="flow-label">批注汇总<br>生成 Prompt</div>
+        <div class="terminal-badge" aria-label="Codex"><span></span></div>
+      </div>
+      <div class="arrow two">→</div>
+
+      <aside class="diff-panel" aria-label="Diff Preview">
+        <div class="diff-header">
+          <div class="compare-icon"></div>
+          <div>
+            <div class="diff-title">Diff Preview</div>
+            <div class="diff-subtitle">3 changes proposed by Codex</div>
+          </div>
+        </div>
+
+        <div class="hunk">
+          <div class="hunk-head">@@ -23,3 +23,5 @@ 修改意见落地</div>
+          <div class="line"><span class="num">21</span><span>读文档时顺手记录判断</span></div>
+          <div class="line del"><span class="num">23</span><span>- 表达比较模糊</span></div>
+          <div class="line add"><span class="num">23</span><span>+ 增加具体案例后更清楚</span></div>
+          <div class="line add"><span class="num">24</span><span>+ 保留原意，只改需要改的地方</span></div>
+          <div class="line"><span class="num">25</span><span>批注执行后自动清理</span></div>
+        </div>
+
+        <div class="hunk">
+          <div class="hunk-head">@@ -41,1 +42,3 @@ 上下文补全</div>
+          <div class="line del"><span class="num">41</span><span>- 让 AI 自己猜怎么改</span></div>
+          <div class="line add"><span class="num">42</span><span>+ 原文、批注、位置一起交给 Agent</span></div>
+          <div class="line add"><span class="num">43</span><span>+ 改完可逐块确认或回滚</span></div>
+        </div>
+
+        <div class="diff-footer">
+          <span><span style="color: var(--green)">+8 lines</span> · <span style="color: var(--red)">-4 lines</span></span>
+          <span class="accept">Accept all</span>
+        </div>
+      </aside>
+    </section>
+
+    <div class="caption"><strong>批注</strong>不是终点，是交给 AI 的清晰指令</div>
+
+    <section class="bottom-strip" aria-label="核心能力">
+      <div class="capability"><span class="dot"></span><span>选中文本<br>直接批注</span></div>
+      <div class="capability"><span class="dot"></span><span>自动汇总<br>修改意见</span></div>
+      <div class="capability"><span class="dot"></span><span>一键交给<br>Codex / Claude Code</span></div>
+      <div class="capability"><span class="dot"></span><span>Diff 对照<br>确认修改</span></div>
+    </section>
+
+    <div class="grain"></div>
+  </main>
+</body>
+</html>

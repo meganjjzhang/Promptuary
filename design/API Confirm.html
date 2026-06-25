@@ -15,32 +15,32 @@
   </style>
 </head>
 
-<body class="bg-[#e8e8e8] min-h-screen flex items-center justify-center p-6">
+<body class="bg-[#121215] min-h-screen flex items-center justify-center p-6">
 <link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style type="text/tailwindcss">
   @theme {
-    --color-surface: #ffffff;
-    --color-surface-hover: #f5f5f5;
-    --color-border: #dcddde;
-    --color-text-primary: #1e1e1e;
-    --color-text-muted: #7a7d82;
-    --color-bg-base: #f8f8f8;
-    --color-overlay: rgba(30, 30, 30, 0.35);
-    --color-purple-bg: rgba(167,139,250,0.12);
-    --color-purple-border: rgba(167,139,250,0.25);
-    --color-purple-text: rgba(167,139,250,0.85);
-    --color-green-bg: rgba(52,168,83,0.08);
-    --color-green-border: rgba(52,168,83,0.30);
-    --color-green-text: rgba(30,120,50,0.92);
-    --color-red-border: rgba(215,58,73,0.25);
-    --color-red-text: rgba(180,40,55,0.90);
-    --color-blue-bg: rgba(96,165,250,0.10);
-    --color-blue-border: rgba(96,165,250,0.20);
-    --color-blue-text: rgba(96,165,250,0.85);
-    --color-warn-bg: rgba(251,146,60,0.08);
-    --color-warn-border: rgba(251,146,60,0.20);
-    --color-warn-text: rgba(251,146,60,0.85);
+    --color-surface: #1e1e24;
+    --color-surface-hover: #2a2a34;
+    --color-border: #34343e;
+    --color-text-primary: #e4e4ec;
+    --color-text-muted: #787884;
+    --color-bg-base: #18181e;
+    --color-overlay: rgba(0, 0, 0, 0.60);
+    --color-purple-bg: rgba(167,139,250,0.15);
+    --color-purple-border: rgba(167,139,250,0.30);
+    --color-purple-text: rgba(167,139,250,0.92);
+    --color-green-bg: rgba(52,211,153,0.10);
+    --color-green-border: rgba(52,211,153,0.35);
+    --color-green-text: rgba(52,211,153,0.92);
+    --color-red-border: rgba(248,113,113,0.35);
+    --color-red-text: rgba(248,113,113,0.92);
+    --color-blue-bg: rgba(96,165,250,0.12);
+    --color-blue-border: rgba(96,165,250,0.25);
+    --color-blue-text: rgba(129,187,255,0.92);
+    --color-warn-bg: rgba(251,146,60,0.10);
+    --color-warn-border: rgba(251,146,60,0.25);
+    --color-warn-text: rgba(251,146,60,0.92);
   }
 </style>
 
@@ -61,7 +61,7 @@
         </div>
         <div>
           <h2 class="text-text-primary text-[13px] font-semibold">API 批阅确认</h2>
-          <p class="text-text-muted text-[10px] mono mt-0.5">Anthropic (Claude) · 即将发送至 API</p>
+          <p class="text-text-muted text-[10px] mono mt-0.5">DeepSeek · 即将发送至 API</p>
         </div>
       </div>
       <button class="w-7 h-7 rounded-md hover:bg-surface-hover flex items-center justify-center text-text-muted hover:text-text-primary transition-colors">
@@ -72,9 +72,9 @@
     <!-- Provider badge row -->
     <div class="px-[18px] pt-3 pb-1 flex items-center gap-2">
       <div class="w-5 h-5 rounded bg-blue-bg border border-blue-border flex items-center justify-center">
-        <span class="text-[10px] font-bold mono text-blue-text">A</span>
+        <span class="text-[10px] font-bold mono text-blue-text">D</span>
       </div>
-      <span class="text-text-primary text-[12px] font-semibold">Anthropic (Claude)</span>
+      <span class="text-text-primary text-[12px] font-semibold">DeepSeek</span>
       <span class="text-[8px] mono px-1.5 py-0.5 rounded-full bg-blue-bg text-blue-text border border-blue-border">provider</span>
     </div>
 
@@ -84,7 +84,7 @@
         <table class="w-full text-[12px]">
           <tr class="border-b border-border/60">
             <td class="px-3 py-2 text-text-muted mono text-[10px] uppercase tracking-wider w-24">Model</td>
-            <td class="px-3 py-2 mono text-text-primary">claude-opus-4-5</td>
+            <td class="px-3 py-2 mono text-text-primary">deepseek-chat</td>
           </tr>
           <tr class="border-b border-border/60">
             <td class="px-3 py-2 text-text-muted mono text-[10px] uppercase tracking-wider">Reviews</td>

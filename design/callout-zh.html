@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * { scrollbar-width: none; }
+  </style>
+</head>
+
+<body class="bg-[#1e1e2e] min-h-screen flex items-center justify-center p-6">
+<link href="https://fonts.googleapis.cn/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style type="text/tailwindcss">
+  @theme {
+    --color-surface: #262637;
+    --color-surface-hover: #2e2e42;
+    --color-border: #363649;
+    --color-text-primary: #cdd6f4;
+    --color-text-muted: #6c7086;
+    --color-bg-base: #1e1e2e;
+    --color-hl-yellow: rgba(250, 204, 21, 0.25);
+    --color-hl-blue: rgba(96, 165, 250, 0.25);
+    --color-hl-green: rgba(74, 222, 128, 0.25);
+    --color-hl-purple: rgba(192, 132, 252, 0.25);
+    --color-hl-orange: rgba(251, 146, 60, 0.25);
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .popover-1 { animation: fadeSlideIn 0.35s ease-out 0.1s both; }
+  .popover-2 { animation: fadeSlideIn 0.35s ease-out 0.4s both; }
+  .popover-3 { animation: fadeSlideIn 0.35s ease-out 0.7s both; }
+  .popover-4 { animation: fadeSlideIn 0.35s ease-out 1.0s both; }
+  .popover-5 { animation: fadeSlideIn 0.35s ease-out 1.3s both; }
+</style>
+
+<style>
+  body { font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace; }
+</style>
+
+<div class="w-full max-w-[680px]">
+
+  <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-lg">
+
+    <!-- 顶部品牌 -->
+    <div class="px-6 pt-5 pb-3 flex items-center justify-between border-b border-border">
+      <div>
+        <p class="text-text-primary text-base font-semibold tracking-wide">Promptuary</p>
+        <p class="text-text-muted text-[12px] mt-0.5">Obsidian 批注插件 · 选中即批注，一键导出给 AI</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+      </div>
+    </div>
+
+    <!-- 正文区域 -->
+    <div class="px-8 py-6 relative">
+
+      <!-- 标题行 -->
+      <p class="text-text-muted text-[11px] mb-4 uppercase tracking-widest font-medium mono">智能推荐模块 · 技术方案评审</p>
+
+      <!-- 段落 1：正常文本 -->
+      <div class="text-text-primary/85 text-[15px] leading-9 mono space-y-3 mb-2">
+        <p>本次评审聚焦智能推荐模块的架构升级方案。</p>
+        <p>当前系统采用离线批量计算 + 定时刷新的模式，</p>
+        <p>日均处理 120 万次推荐请求，P99 延迟约 800ms。</p>
+      </div>
+
+      <!-- 段落 2：蓝色高亮 + 阅读浮窗 1（折叠态，右侧） -->
+      <div class="relative mb-3">
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>升级目标是构建</span>
+          <span class="bg-hl-blue px-0.5 rounded-sm border-b border-blue-400/30">实时特征引擎 + 在线推理链路</span>
+          <span>，</span>
+        </p>
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span class="bg-hl-blue px-0.5 rounded-sm border-b border-blue-400/30">将推荐延迟控制在 200ms 以内</span>
+          <span>，同时支撑</span>
+        </p>
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>A/B 实验流量 30% 的灰度切换。</span>
+        </p>
+
+        <!-- 阅读浮窗：折叠态，在行末右侧 -->
+        <div class="absolute right-[-8px] top-[-8px] popover-1 z-10">
+          <div class="bg-bg-base border border-border rounded-lg px-2.5 py-2 flex items-center gap-2 shadow-lg">
+            <button class="w-[14px] h-[14px] rounded-full bg-yellow-400/60 border border-yellow-400/40"></button>
+            <button class="w-[14px] h-[14px] rounded-full bg-blue-400/60 border border-blue-400/40 ring-2 ring-blue-400/30 ring-offset-1 ring-offset-[#1e1e2e]"></button>
+            <button class="w-[14px] h-[14px] rounded-full bg-green-400/60 border border-green-400/40"></button>
+            <button class="w-[14px] h-[14px] rounded-full bg-purple-400/60 border border-purple-400/40"></button>
+            <div class="w-px h-3.5 bg-border"></div>
+            <button class="text-text-muted text-[11px] font-medium px-1.5 py-0.5 rounded mono flex items-center gap-1 whitespace-nowrap">
+              <i data-lucide="message-square" class="w-3 h-3"></i>
+              笔记
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 段落 3：正常文本 -->
+      <div class="text-text-primary/85 text-[15px] leading-9 mono mb-2">
+        <p>特征引擎需要接入用户行为埋点、物品画像、</p>
+        <p>上下文特征三类数据源，日均增量约 8TB。</p>
+      </div>
+
+      <!-- 段落 4：绿色高亮 + 阅读浮窗 2（展开态，下方） -->
+      <div class="relative mb-2">
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>在线推理部分计划采用</span>
+          <span class="bg-hl-green px-0.5 rounded-sm border-b border-green-400/30">双塔模型 + 向量检索</span>
+          <span>的经典范式，</span>
+        </p>
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span class="bg-hl-green px-0.5 rounded-sm border-b border-green-400/30">召回层保留 200 候选，排序层精排 Top 20</span>
+          <span>。</span>
+        </p>
+
+        <!-- 阅读浮窗：展开态，在段落下方偏右 -->
+        <div class="flex justify-end mt-2 popover-2">
+          <div class="bg-bg-base border border-border rounded-lg p-2.5 w-[260px] shadow-lg mr-2">
+            <div class="flex items-center gap-1.5 mb-2">
+              <button class="w-[14px] h-[14px] rounded-full bg-green-400/60 border border-green-400/40 ring-2 ring-green-400/30 ring-offset-1 ring-offset-[#1e1e2e]"></button>
+              <span class="text-green-400/80 text-[11px] font-medium px-1.5 py-0.5 rounded bg-green-400/10 mono flex items-center gap-0.5">
+                <i data-lucide="message-square" class="w-2.5 h-2.5"></i>
+                笔记
+              </span>
+            </div>
+            <div class="border border-border rounded bg-surface">
+              <input type="text" value="参考 Google 2024 双塔召回论文，候选池 200 是否偏保守？" class="w-full bg-transparent text-text-primary text-[11px] px-2.5 py-2 outline-none mono">
+            </div>
+            <div class="flex justify-end mt-1.5">
+              <button class="text-[11px] text-text-muted hover:text-text-primary px-2 py-0.5 rounded">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 段落 5：正常文本 -->
+      <div class="text-text-primary/85 text-[15px] leading-9 mono mb-2">
+        <p>服务端部署方面，考虑到 GPU 资源有限，</p>
+        <p>初期采用 CPU 推理 + INT8 量化的降级方案。</p>
+      </div>
+
+      <!-- 段落 6：橙色删除线 + 批阅浮窗 3（折叠态，右侧） -->
+      <div class="relative mb-2">
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>全量上线前需完成</span>
+          <span class="bg-hl-orange px-0.5 rounded-sm border-b border-orange-400/30 line-through decoration-orange-400/50">连续 7 天的全链路压测</span>
+          <span>，</span>
+        </p>
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>并输出压测报告经技术委员会评审通过。</span>
+        </p>
+
+        <!-- 批阅浮窗：折叠态，在行末右侧 -->
+        <div class="absolute right-[-8px] top-[-4px] popover-3 z-10">
+          <div class="bg-bg-base border border-border rounded-lg px-2.5 py-2 flex items-center gap-2 shadow-lg">
+            <button class="text-text-muted text-[11px] font-medium px-1.5 py-0.5 rounded mono flex items-center gap-1 whitespace-nowrap">
+              <i data-lucide="strikethrough" class="w-3 h-3"></i>
+              删除线
+            </button>
+            <div class="w-px h-3.5 bg-border"></div>
+            <button class="text-text-muted text-[11px] font-medium px-1.5 py-0.5 rounded mono flex items-center gap-1 whitespace-nowrap">
+              <i data-lucide="message-square" class="w-3 h-3"></i>
+              批注
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 段落 7：正常文本 -->
+      <div class="text-text-primary/85 text-[15px] leading-9 mono mb-2">
+        <p>同时需要准备回滚预案：当推荐模块异常时，</p>
+        <p>自动降级为热门排序兜底，切换时间 &lt; 30s。</p>
+      </div>
+
+      <!-- 段落 8：橙色删除线 + 批阅浮窗 4（展开态，下方偏右） -->
+      <div class="relative mb-2">
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>风险点：</span>
+          <span class="bg-hl-orange px-0.5 rounded-sm border-b border-orange-400/30 line-through decoration-orange-400/50">向量检索依赖 ElasticSearch 8.x 的 dense_vector 字段，</span>
+        </p>
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>ES 集群升级窗口仅安排在凌晨 2:00-4:00。</span>
+        </p>
+
+        <!-- 批阅浮窗：展开态，下方偏右 -->
+        <div class="flex justify-end mt-2 popover-4">
+          <div class="bg-bg-base border border-border rounded-lg p-2.5 w-[280px] shadow-lg mr-2">
+            <div class="flex items-center gap-1.5 mb-2">
+              <span class="text-red-400/80 text-[11px] font-medium px-1.5 py-0.5 rounded bg-red-400/10 mono flex items-center gap-0.5">
+                <i data-lucide="strikethrough" class="w-2.5 h-2.5"></i>
+                删除线
+              </span>
+              <span class="text-orange-400/80 text-[11px] font-medium px-1.5 py-0.5 rounded bg-orange-400/10 mono flex items-center gap-0.5">
+                <i data-lucide="message-square" class="w-2.5 h-2.5"></i>
+                批阅
+              </span>
+            </div>
+            <div class="border border-border rounded bg-surface">
+              <textarea class="w-full bg-transparent text-text-primary text-[11px] px-2.5 py-2 outline-none mono resize-none h-12">建议用 Milvus 替代 ES，已有团队在 K8s 集群部署了 Milvus 2.4，免去升级窗口限制</textarea>
+            </div>
+            <div class="flex justify-end mt-1.5">
+              <button class="text-[11px] text-text-muted hover:text-text-primary px-2 py-0.5 rounded">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 段落 9：紫色高亮 + 阅读浮窗 5（折叠态，左侧） -->
+      <div class="relative">
+        <p class="text-text-primary/85 text-[15px] leading-9 mono">
+          <span>排期：预计</span>
+          <span class="bg-hl-purple px-0.5 rounded-sm border-b border-purple-400/30">特征引擎 6 周 + 在线推理 4 周 + 联调 2 周</span>
+          <span>。</span>
+        </p>
+
+        <!-- 阅读浮窗：折叠态，左侧 -->
+        <div class="absolute left-[-130px] top-1/2 -translate-y-1/2 popover-5 z-10">
+          <div class="bg-bg-base border border-border rounded-lg px-2.5 py-2 flex items-center gap-2 shadow-lg">
+            <button class="w-[14px] h-[14px] rounded-full bg-purple-400/60 border border-purple-400/40 ring-2 ring-purple-400/30 ring-offset-1 ring-offset-[#1e1e2e]"></button>
+            <div class="w-px h-3.5 bg-border"></div>
+            <button class="text-text-muted text-[11px] font-medium px-1.5 py-0.5 rounded mono flex items-center gap-1 whitespace-nowrap">
+              <i data-lucide="message-square" class="w-3 h-3"></i>
+              笔记
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="border-t border-border px-6 py-3.5 flex items-center justify-center gap-4">
+      <span class="text-text-muted/60 text-[11px] mono">选中即批注</span>
+      <span class="text-text-muted/30 text-[11px]">·</span>
+      <span class="text-text-muted/60 text-[11px] mono">不污染原文</span>
+      <span class="text-text-muted/30 text-[11px]">·</span>
+      <span class="text-text-muted/60 text-[11px] mono">一键导出给 AI</span>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+<script>if (window.lucide) lucide.createIcons();</script>
+</html>

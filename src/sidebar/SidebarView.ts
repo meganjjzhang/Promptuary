@@ -75,6 +75,8 @@ export class SidebarView extends ItemView {
         if (path === this.currentFilePath) void this.refresh();
       }),
     );
+    // Re-render action bar when settings change (e.g. API key configured)
+    this.plugin.onSettingsChanged = () => this.reRenderActionBar();
     await this.onActiveLeafChange();
   }
 

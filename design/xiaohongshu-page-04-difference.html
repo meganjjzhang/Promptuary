@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 4 页 - 核心差异</title>
+  <style>
+    :root {
+      --bg: #1f1e2d; --surface: #282738; --surface-2: #302d45; --surface-3: #242333;
+      --border: #3c3a51; --border-soft: rgba(185,171,255,.16);
+      --text: #f8f7ff; --muted: #9693ad; --dim: #68657e;
+      --purple: #a98bff; --purple-bright: #b89cff; --purple-deep: #4c3b71;
+      --blue: #4f72ff; --cyan: #20e8e3; --orange: #ea845d; --green: #89e6a7; --red: #ee7a83;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #11111b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+    }
+
+    .poster {
+      position: relative; width: 1024px; height: 1440px; overflow: hidden;
+      background:
+        radial-gradient(circle at 28% 48%, rgba(169,139,255,0.12), transparent 30%),
+        radial-gradient(circle at 74% 56%, rgba(79,114,255,0.1), transparent 28%),
+        linear-gradient(180deg, #202030 0%, #1e1d2b 58%, #1a1a27 100%);
+      isolation: isolate;
+    }
+    .poster::before {
+      content:"";position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px,transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 78%);
+      pointer-events:none;
+    }
+    .grain {
+      position:absolute;inset:0;opacity:.16;
+      background-image: radial-gradient(rgba(255,255,255,0.28) 0.6px,transparent 0.6px);
+      background-size: 8px 8px;pointer-events:none;mix-blend-mode:soft-light;z-index:2;
+    }
+
+    .topbar { position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:58px 54px 0; }
+    .eyebrow { display:inline-flex;align-items:center;gap:14px;padding:13px 18px;border:1px solid rgba(169,139,255,.34);border-radius:999px;background:rgba(45,42,64,.72);color:#d9d0ff;font-size:22px;font-weight:800;line-height:1; }
+    .logo-mark { width:25px;height:25px;border-radius:8px;background:linear-gradient(135deg,#9a7bff,#5874ff);position:relative;box-shadow:0 0 22px rgba(154,123,255,.42); }
+    .logo-mark::before{ content:"";position:absolute;width:10px;height:10px;border:4px solid #eef0ff;border-left:0;border-bottom:0;transform:rotate(45deg);left:6px;top:5px;border-radius:2px; }
+    .page-tag { padding:12px 20px;border-radius:999px;background:rgba(169,139,255,.16);border:1px solid rgba(169,139,255,.28);color:#dfd7ff;font-size:23px;font-weight:900; }
+
+    .headline { position:relative;z-index:3;margin:62px 48px 0;font-weight:1000;line-height:1.14;font-size:68px;letter-spacing:-1px; }
+    .headline .line { display:block; white-space:nowrap; }
+    .headline .muted-part { color:var(--muted); font-size:34px; margin-top:18px; font-weight:700; line-height:1.5; }
+    .headline .em { color:var(--purple-bright); text-shadow:0 0 28px rgba(169,139,255,.18); }
+
+    /* Comparison layout */
+    .compare-section {
+      position: relative; z-index: 3;
+      margin-top: 56px; padding: 0 48px;
+      display: grid; grid-template-columns: 340px auto 340px; gap: 0; align-items: center;
+    }
+
+    /* Old way card */
+    .old-way {
+      padding: 36px 28px 32px;
+      border-radius: 18px;
+      background: rgba(30, 29, 43, 0.72);
+      border: 1px solid rgba(104, 101, 126, 0.2);
+      box-shadow: 0 12px 38px rgba(0,0,0,.18);
+      display: grid; gap: 18px;
+      opacity: 0.72;
+    }
+
+    .card-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      width: fit-content; padding: 8px 16px; border-radius: 999px;
+      font-size: 16px; font-weight: 900;
+    }
+    .card-badge.old { background: rgba(104,101,126,.18); border:1px solid rgba(104,101,126,.32); color:var(--muted); }
+    .card-badge.new { background: rgba(169,139,255,.16); border:1px solid rgba(169,139,255,.34); color:var(--purple-bright); }
+
+    .card-title { font-size: 26px; font-weight: 900; color: #c8c5df; line-height:1.25; }
+    .new-way .card-title { color: #fff; }
+
+    .feature-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .feature-list li {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 18px; font-weight: 700; color: var(--dim); line-height: 1.35;
+    }
+    .new-way .feature-list li { color: #ddd8f7; }
+    .check-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: grid; place-items: center; flex-shrink: 0;
+      font-size: 13px; font-weight: 900;
+    }
+    .old-way .check-icon { background: rgba(104,101,126,.18); border:1px solid rgba(104,101,126,.3); color:var(--dim); }
+    .new-way .check-icon { background: rgba(137,230,167,.14); border:1px solid rgba(137,230,167,.32); color:var(--green); }
+
+    /* Center arrow */
+    .center-arrow {
+      display: grid; place-items: center;
+      padding: 0 8px;
+    }
+    .arrow-big {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(169,139,255,.2), rgba(169,139,255,.08));
+      border: 2px solid rgba(169,139,255,.3);
+      display: grid; place-items: center;
+      color: var(--purple-bright);
+      font-size: 42px; font-weight: 1000;
+      box-shadow: 0 0 40px rgba(169,139,255,.2);
+    }
+
+    /* New way card */
+    .new-way {
+      padding: 36px 28px 32px;
+      border-radius: 18px;
+      background: rgba(76, 59, 113, 0.4);
+      border: 1px solid rgba(169, 139, 255, 0.3);
+      box-shadow: 0 20px 54px rgba(0,0,0,.24), 0 0 50px rgba(169,139,255,.06);
+      display: grid; gap: 18px;
+    }
+
+    /* Pipeline strip inside new way */
+    .pipeline {
+      margin-top: 8px; padding: 18px 20px; border-radius: 12px;
+      background: rgba(0,0,0,.28); display: flex; align-items: center; gap: 0;
+    }
+    .pipe-step {
+      padding: 10px 16px; border-radius: 8px;
+      font-size: 15px; font-weight: 900; white-space: nowrap;
+    }
+    .pipe-step.s1 { background: rgba(234,132,93,.16); border:1px solid rgba(234,132,93,.34); color:#ef9d77; }
+    .pipe-step.s2 { background: rgba(169,139,255,.18); border:1px solid rgba(169,139,255,.36); color:#d9d0ff; }
+    .pipe-step.s3 { background: rgba(79,114,255,.16); border:1px solid rgba(79,114,255,.34); color:#a8c0ff; }
+    .pipe-step.s4 { background: rgba(137,230,167,.14); border:1px solid rgba(137,230,167,.3); color:#89e6a7; }
+    .pipe-arrow { color:var(--dim); font-size:18px; font-weight:900; padding:0 4px; }
+
+    /* Bottom capability tags */
+    .cap-strip {
+      position: relative; z-index: 3;
+      margin: 52px 54px 0;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .cap-chip {
+      padding: 20px 18px; border-radius: 14px;
+      background: rgba(41, 40, 58, 0.7);
+      border: 1px solid rgba(160, 154, 193, 0.14);
+      text-align: center;
+      font-size: 18px; font-weight: 800; color: #c8c5df; line-height: 1.4;
+    }
+    .cap-chip strong { color: #e9e5ff; display: block; margin-bottom: 4px; }
+
+    /* Glow effects */
+    .glow-l { position:absolute;z-index:1;left:-40px;top:500px;width:260px;height:260px;border-radius:50%;background:rgba(104,101,126,.08);filter:blur(50px);pointer-events:none; }
+    .glow-r { position:absolute;z-index:1;right:-40px;top:520px;width:300px;height:300px;border-radius:50%;background:rgba(169,139,255,.08);filter:blur(60px);pointer-events:none; }
+  </style>
+</head>
+<body>
+  <main class="poster" aria-label="核心差异页">
+    <div class="topbar">
+      <div class="eyebrow"><span class="logo-mark"></span>Promptuary</div>
+      <div class="page-tag">04/06</div>
+    </div>
+
+    <h1 class="headline">
+      <span class="line">它不只是记录批注</span>
+      <span class="muted-part">而是把批注意图 <span class="em">交给 AI 执行</span></span>
+    </h1>
+
+    <section class="compare-section">
+      <!-- 传统高亮插件 -->
+      <article class="old-way">
+        <span class="card-badge old">传统高亮插件</span>
+        <div class="card-title">Highlight → Note<br>留在原地</div>
+        <ul class="feature-list">
+          <li><span class="check-icon">✕</span>改了原文内容</li>
+          <li><span class="check-icon">✕</span>无法批量汇总</li>
+          <li><span class="check-icon">✕</span>没有 AI 桥接层</li>
+          <li><span class="check-icon">✕</span>导出格式受限</li>
+        </ul>
+      </article>
+
+      <!-- 中间大箭头 -->
+      <div class="center-arrow">
+        <div class="arrow-big">→</div>
+      </div>
+
+      <!-- Promptuary -->
+      <article class="new-way">
+        <span class="card-badge new">Promptuary</span>
+        <div class="card-title">Annotation → Prompt<br>→ Agent → Diff</div>
+        <ul class="feature-list">
+          <li><span class="check-icon">✓</span>不污染原文（sidecar 存储）</li>
+          <li><span class="check-icon">✓</span>笔记 / 批阅分开管理</li>
+          <li><span class="check-icon">✓</span>一键导出 Markdown 或 Prompt</li>
+          <li><span class="check-icon">✓</span>对接 Codex / Claude Code 等 Agent</li>
+        </ul>
+        <div class="pipeline">
+          <span class="pipe-step s1">批注采集</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step s2">结构化</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step s3">Agent</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step s4">Diff 确认</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="cap-strip" aria-label="能力标签">
+      <div class="cap-chip"><strong>Sidecar 存储</strong>原文零污染</div>
+      <div class="cap-chip"><strong>类型分离</strong>阅读笔记 × 批阅意见</div>
+      <div class="cap-chip"><strong>多出口</strong>Prompt · MD · JSON</div>
+      <div class="cap-chip"><strong>闭环执行</strong>Agent + Diff 回滚</div>
+    </section>
+
+    <div class="glow-l"></div>
+    <div class="glow-r"></div>
+    <div class="grain"></div>
+  </main>
+</body>
+</html>

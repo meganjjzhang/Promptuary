@@ -656,7 +656,7 @@ export class SettingsTab extends PluginSettingTab {
         b.setButtonText(t("settings.api.test.btn")).setDisabled(false);
         if (result.success) {
           _lastTestResult = "success";
-          new Notice(t("settings.api.test.success", { text: result.text?.slice(0, 30) ?? "" }));
+          new Notice(t("settings.api.test.success", { model: s.model || PROVIDER_DEFAULTS[s.provider].model }));
         } else {
           _lastTestResult = "fail";
           new Notice(t("settings.api.test.failed", { error: result.error ?? "" }));

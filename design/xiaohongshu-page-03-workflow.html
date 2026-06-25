@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 3 页 - 工作流</title>
+  <style>
+    :root {
+      --bg: #1f1e2d; --surface: #282738; --surface-2: #302d45; --surface-3: #242333;
+      --border: #3c3a51; --border-soft: rgba(185,171,255,.16);
+      --text: #f8f7ff; --muted: #9693ad; --dim: #68657e;
+      --purple: #a98bff; --purple-bright: #b89cff; --purple-deep: #4c3b71;
+      --blue: #4f72ff; --cyan: #20e8e3; --orange: #ea845d; --green: #89e6a7; --red: #ee7a83;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #11111b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+    }
+
+    .poster {
+      position: relative; width: 1024px; height: 1440px; overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(169,139,255,0.14), transparent 35%),
+        radial-gradient(circle at 82% 58%, rgba(79,114,255,0.1), transparent 30%),
+        linear-gradient(180deg, #202030 0%, #1e1d2b 58%, #1a1a27 100%);
+      isolation: isolate;
+    }
+    .poster::before {
+      content:""; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px,transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 78%);
+      pointer-events:none;
+    }
+    .grain {
+      position:absolute; inset:0; opacity:.16;
+      background-image: radial-gradient(rgba(255,255,255,0.28) 0.6px,transparent 0.6px);
+      background-size: 8px 8px; pointer-events:none; mix-blend-mode:soft-light; z-index:2;
+    }
+
+    /* Top bar */
+    .topbar { position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; padding:58px 54px 0; }
+    .eyebrow { display:inline-flex; align-items:center; gap:14px; padding:13px 18px; border:1px solid rgba(169,139,255,.34); border-radius:999px; background:rgba(45,42,64,.72); color:#d9d0ff; font-size:22px; font-weight:800; line-height:1; }
+    .logo-mark { width:25px;height:25px;border-radius:8px;background:linear-gradient(135deg,#9a7bff,#5874ff);position:relative;box-shadow:0 0 22px rgba(154,123,255,.42); }
+    .logo-mark::before{ content:"";position:absolute;width:10px;height:10px;border:4px solid #eef0ff;border-left:0;border-bottom:0;transform:rotate(45deg);left:6px;top:5px;border-radius:2px; }
+    .page-tag { padding:12px 20px;border-radius:999px;background:rgba(169,139,255,.16);border:1px solid rgba(169,139,255,.28);color:#dfd7ff;font-size:23px;font-weight:900; }
+
+    /* Headline */
+    .headline { position:relative;z-index:3;margin:62px 48px 0;font-weight:1000;line-height:1.12;font-size:76px;color:var(--purple-bright);letter-spacing:-1px;text-shadow:0 0 34px rgba(169,139,255,.18); }
+    .headline sub { font-size: 32px; color: var(--muted); display: block; margin-top: 12px; font-weight: 700; letter-spacing: 0; }
+
+    /* Steps flow */
+    .steps-flow {
+      position: relative; z-index: 3;
+      margin-top: 72px; padding: 0 54px;
+    }
+
+    .step-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px;
+      align-items: start;
+    }
+
+    .step-card {
+      position: relative;
+      padding: 36px 28px 32px;
+      border-radius: 18px;
+      background: rgba(41, 40, 58, 0.78);
+      border: 1px solid rgba(160, 154, 193, 0.16);
+      box-shadow: 0 16px 46px rgba(0, 0, 0, 0.2);
+      display: grid;
+      gap: 18px;
+      transition: transform .2s;
+    }
+
+    .step-card.featured {
+      background: rgba(76, 59, 113, 0.5);
+      border-color: rgba(169, 139, 255, 0.32);
+      box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26), 0 0 40px rgba(169, 139, 255, 0.08);
+      transform: scale(1.04);
+    }
+
+    .step-num-wrap {
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .step-num {
+      display: inline-flex; align-items:center; justify-content:center;
+      width: 46px; height: 46px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(169,139,255,.28), rgba(169,139,255,.12));
+      border: 2px solid rgba(169, 139, 255, 0.45);
+      color: var(--purple-bright);
+      font-size: 24px; font-weight: 1000;
+    }
+
+    .step-card.featured .step-num {
+      background: linear-gradient(135deg, rgba(169,139,255,.45), rgba(169,139,255,.2));
+      box-shadow: 0 0 20px rgba(169, 139, 255, 0.3);
+    }
+
+    .step-label {
+      font-size: 16px; font-weight: 800; color: var(--dim); letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    .step-title {
+      font-size: 28px; font-weight: 900; color: #e9e5ff; line-height: 1.25;
+    }
+
+    .step-card.featured .step-title { color: #ffffff; }
+
+    .step-desc {
+      font-size: 19px; font-weight: 600; color: var(--muted); line-height: 1.55;
+      padding-left: 2px;
+    }
+
+    /* Mini UI preview inside step cards */
+    .mini-ui {
+      margin-top: 8px; padding: 16px; border-radius: 10px; background: rgba(0,0,0,0.28); overflow:hidden;
+    }
+
+    .mini-editor {
+      font-family: "SFMono-Regular",Consolas,monospace; font-size: 14px; font-weight: 700; line-height: 1.6; color: #c8c5df;
+    }
+    .mini-sel {
+      background: rgba(169,139,255,.22); border-radius: 3px; padding: 0 3px; color: #d9d0ff;
+    }
+    .mini-sidebar-item {
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,.03); margin-bottom:8px; font-size:15px; font-weight:700; color:#c8c5df;
+    }
+    .mini-sidebar-pill { padding:3px 10px;border-radius:6px;background:rgba(234,132,93,.16);border:1px solid rgba(234,132,93,.34);color:#ef9d77;font-size:12px;font-weight:900; }
+    .mini-agent-row { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:rgba(79,114,255,.08);font-size:15px;font-weight:800;color:#a8c0ff; }
+    .mini-terminal { font-family:"SFMono-Regular",Consolas,monospace;font-size:13px;font-weight:700;color:#89e6a7;background:rgba(137,230,167,.07);padding:12px 14px;border-radius:8px;line-height:1.5; }
+
+    /* Flow connectors (arrows between steps) */
+    .flow-conn {
+      position: absolute; top: 140px;
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      color: rgba(169, 139, 255, 0.7); font-size: 34px; font-weight: 1000;
+      text-shadow: 0 0 18px rgba(169, 139, 255, 0.3);
+    }
+    .flow-conn.c1 { left: 310px; }
+    .flow-conn.c2 { left: 668px; }
+
+    /* Flow line behind */
+    .flow-line-bg {
+      position: absolute; top: 162px; left: 170px; right: 170px;
+      height: 3px; background: linear-gradient(90deg, transparent, rgba(169,139,255,.4), rgba(169,139,255,.4), transparent);
+      z-index: 0; border-radius: 999px;
+    }
+
+    /* Bottom caption */
+    .bottom-caption {
+      position: relative; z-index: 3;
+      margin: 64px 54px 0; text-align: center;
+    }
+    .bottom-caption p {
+      font-size: 28px; font-weight: 800; color: #cbc8df; line-height: 1.5;
+    }
+    .bottom-caption strong { color: var(--purple-bright); font-weight: 1000; }
+
+    /* Decorative glow */
+    .glow-center {
+      position: absolute; z-index: 1; left: 50%; top: 480px;
+      width: 420px; height: 420px;
+      transform: translateX(-50%);
+      border-radius: 50%; background: rgba(169, 139, 255, 0.06); filter: blur(60px); pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="poster" aria-label="工作流页">
+    <div class="topbar">
+      <div class="eyebrow"><span class="logo-mark"></span>Promptuary</div>
+      <div class="page-tag">03/06</div>
+    </div>
+
+    <h1 class="headline">
+      现在只要 3 步
+      <sub>从批注到 Agent 执行的完整闭环</sub>
+    </h1>
+
+    <!-- Flow line background -->
+    <section class="steps-flow" aria-label="三步工作流">
+      <div class="flow-line-bg"></div>
+
+      <div class="step-row">
+        <!-- Step 1 -->
+        <article class="step-card">
+          <div class="step-num-wrap">
+            <span class="step-num">1</span>
+            <span class="step-label">ANNOTATE</span>
+          </div>
+          <div class="step-title">选中文本<br>写下批注</div>
+          <div class="step-desc">阅读时选中任意文字<br>直接写批阅意见</div>
+          <div class="mini-ui">
+            <div class="mini-editor">
+              系统<span class="mini-sel">支持多端同步</span>能力<br>
+              核心功能包括：<span class="mini-sel">实时编辑和协作</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Step 2 (featured/center) -->
+        <article class="step-card featured">
+          <div class="step-num-wrap">
+            <span class="step-num">2</span>
+            <span class="step-label" style="color:var(--purple)">SUMMARIZE</span>
+          </div>
+          <div class="step-title">自动汇总<br>生成修改指令</div>
+          <div class="step-desc">所有批注自动整理<br>附带原文上下文快照</div>
+          <div class="mini-ui">
+            <div class="mini-sidebar-item"><span class="mini-sidebar-pill">批阅</span><span>逻辑跳太快，补案例</span></div>
+            <div class="mini-sidebar-item"><span class="mini-sidebar-pill">批阅</span><span>术语不一致，需统一</span></div>
+            <div class="mini-sidebar-item"><span class="mini-sidebar-pill">批阅</span><span>结论缺上下文说明</span></div>
+            <div style="font-size:13px;color:var(--dim);padding:6px 0;">↓ 导出为结构化 Prompt</div>
+          </div>
+        </article>
+
+        <!-- Step 3 -->
+        <article class="step-card">
+          <div class="step-num-wrap">
+            <span class="step-num">3</span>
+            <span class="step-label">EXECUTE</span>
+          </div>
+          <div class="step-title">交给 Agent<br>直接开始改</div>
+          <div class="step-desc">一键发送给 Codex / Claude Code<br>或导出给任何 AI 工具</div>
+          <div class="mini-ui">
+            <div class="mini-agent-row">⚡ Claude Code 执行中...</div>
+            <div class="mini-terminal">$ codex --prompt ./prompt.md<br>✓ 3 changes applied</div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Connector arrows -->
+      <div class="flow-conn c1">→</div>
+      <div class="flow-conn c2">→</div>
+    </section>
+
+    <div class="bottom-caption">
+      <p>批注不是<strong>散落的想法</strong><br>而是交给 AI 的<strong>结构化指令</strong></p>
+    </div>
+
+    <div class="glow-center"></div>
+    <div class="grain"></div>
+  </main>
+</body>
+</html>

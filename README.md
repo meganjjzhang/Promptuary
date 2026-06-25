@@ -6,6 +6,10 @@
 
 > An Obsidian plugin for reading annotations and AI-powered batch review. Highlight and take notes while reading, leave review comments, then hand them off to external AI agents for execution — all in one click.
 
+<p align="center">
+  <img src="img/graph.png">
+</p>
+
 [中文文档](README_zh.md)
 
 ---

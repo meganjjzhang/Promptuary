@@ -91,6 +91,8 @@ export default class PromptuaryPlugin extends Plugin {
 
   // v0.2 Agent bridge state
   private commandRuleStore!: CommandRuleStore;
+  /** Called by sidebar to subscribe to settings changes */
+  onSettingsChanged: (() => void) | null = null;
   private agentCache: AgentInfo[] | null = null;
   private fileChangeMonitor: FileChangeMonitor | null = null;
   private originalTextBeforeAgent: string | null = null;
@@ -261,6 +263,7 @@ export default class PromptuaryPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    this.onSettingsChanged?.();
   }
 
   // ---------- v0.2: Agent bridge ----------

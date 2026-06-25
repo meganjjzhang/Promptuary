@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 2 页 - 痛点</title>
+  <style>
+    :root {
+      --bg: #1f1e2d;
+      --surface: #282738;
+      --surface-2: #302d45;
+      --surface-3: #242333;
+      --border: #3c3a51;
+      --border-soft: rgba(185, 171, 255, 0.16);
+      --text: #f8f7ff;
+      --muted: #9693ad;
+      --dim: #68657e;
+      --purple: #a98bff;
+      --purple-bright: #b89cff;
+      --purple-deep: #4c3b71;
+      --blue: #4f72ff;
+      --cyan: #20e8e3;
+      --orange: #ea845d;
+      --green: #89e6a7;
+      --red: #ee7a83;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #11111b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+    }
+
+    .poster {
+      position: relative;
+      width: 1024px;
+      height: 1440px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 21% 52%, rgba(169, 139, 255, 0.14), transparent 26%),
+        radial-gradient(circle at 75% 64%, rgba(79, 114, 255, 0.12), transparent 28%),
+        linear-gradient(180deg, #202030 0%, #1e1d2b 58%, #1a1a27 100%);
+      isolation: isolate;
+    }
+
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 78%);
+      pointer-events: none;
+    }
+
+    .grain {
+      position: absolute; inset: 0;
+      opacity: 0.16;
+      background-image: radial-gradient(rgba(255,255,255,0.28) 0.6px, transparent 0.6px);
+      background-size: 8px 8px;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+      z-index: 2;
+    }
+
+    /* === Top bar === */
+    .topbar {
+      position: relative; z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 58px 54px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 14px;
+      padding: 13px 18px;
+      border: 1px solid rgba(169, 139, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(45, 42, 64, 0.72);
+      color: #d9d0ff;
+      font-size: 22px; font-weight: 800; line-height: 1;
+    }
+
+    .logo-mark {
+      width: 25px; height: 25px; border-radius: 8px;
+      background: linear-gradient(135deg, #9a7bff, #5874ff);
+      position: relative;
+      box-shadow: 0 0 22px rgba(154, 123, 255, 0.42);
+    }
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      width: 10px; height: 10px;
+      border: 4px solid #eef0ff;
+      border-left: 0; border-bottom: 0;
+      transform: rotate(45deg); left: 6px; top: 5px;
+      border-radius: 2px;
+    }
+
+    .page-tag {
+      padding: 12px 20px; border-radius: 999px;
+      background: rgba(169, 139, 255, 0.16);
+      border: 1px solid rgba(169, 139, 255, 0.28);
+      color: #dfd7ff;
+      font-size: 23px; font-weight: 900;
+    }
+
+    /* === Headline === */
+    .headline {
+      position: relative; z-index: 3;
+      margin: 66px 48px 0;
+      font-weight: 1000;
+      line-height: 1.14;
+      letter-spacing: -1px;
+      font-size: 70px;
+    }
+    .headline .line { display: block; white-space: nowrap; }
+    .headline .highlight { color: var(--orange); }
+    .headline .muted-line { color: var(--muted); font-size: 36px; margin-top: 20px; font-weight: 700; line-height: 1.5; }
+
+    /* === Main area split === */
+    .split-area {
+      position: relative; z-index: 3;
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 40px;
+      margin-top: 56px;
+      padding: 0 48px;
+      align-items: start;
+    }
+
+    /* Left: document card */
+    .doc-card {
+      position: relative;
+      padding: 32px 28px 28px;
+      border-radius: 16px;
+      background: rgba(41, 40, 58, 0.86);
+      border: 1px solid rgba(160, 154, 193, 0.18);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .doc-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 22px;
+      color: var(--muted); font-size: 17px; font-weight: 800;
+    }
+    .doc-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .doc-dot.red { background: #ee7a83; }
+    .doc-dot.yellow { background: #ead66b; }
+    .doc-dot.green { background: #89e6a7; }
+
+    .doc-body {
+      font-size: 19px; line-height: 1.75; color: #c8c5df; font-weight: 600;
+    }
+    .doc-body .circle-mark {
+      display: inline;
+      border: 2px solid var(--red);
+      border-radius: 50% 8px / 50%;
+      padding: 1px 4px;
+      margin: 0 1px;
+      position: relative;
+      color: #ffb0b8;
+    }
+    .doc-body .strike-text {
+      text-decoration: line-through;
+      text-decoration-color: var(--orange);
+      text-decoration-thickness: 2px;
+      color: rgba(238, 122, 131, 0.55);
+    }
+    .doc-body .question-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(234, 132, 93, 0.18);
+      border: 1.5px solid var(--orange);
+      color: #ef9d77; font-size: 13px; font-weight: 900;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+
+    .doc-footer {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(160, 154, 193, 0.12);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 15px; color: var(--dim); font-family: "SFMono-Regular", Consolas, monospace; font-weight: 700;
+    }
+
+    /* Right: trouble cards */
+    .trouble-stack {
+      display: grid; gap: 20px; padding-right: 10px;
+    }
+
+    .trouble-card {
+      position: relative;
+      padding: 28px 26px 26px;
+      border-radius: 14px;
+      background: rgba(41, 40, 58, 0.78);
+      border: 1px solid rgba(160, 154, 193, 0.14);
+      box-shadow: 0 12px 38px rgba(0, 0, 0, 0.18);
+      display: grid; gap: 14px;
+    }
+
+    .trouble-num {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(238, 122, 131, 0.14);
+      border: 1px solid rgba(238, 122, 131, 0.34);
+      color: #ee7a83; font-size: 18px; font-weight: 900;
+    }
+
+    .trouble-title {
+      font-size: 26px; font-weight: 900; color: #e9e5ff; line-height: 1.25;
+    }
+
+    .trouble-desc {
+      font-size: 19px; font-weight: 600; color: var(--muted); line-height: 1.5;
+      padding-left: 4px;
+    }
+
+    /* Arrow connector */
+    .connector-arrow {
+      position: absolute;
+      left: 396px;
+      top: 200px;
+      z-index: 4;
+      width: 44px; height: 44px;
+      color: rgba(234, 132, 93, 0.65);
+      font-size: 40px; font-weight: 1000; line-height: 1;
+      transform: rotate(0deg);
+    }
+
+    /* Bottom summary */
+    .bottom-quote {
+      position: relative; z-index: 3;
+      margin: 56px 54px 0;
+      padding: 32px 36px;
+      border-radius: 18px;
+      background: rgba(234, 132, 93, 0.07);
+      border-left: 5px solid var(--orange);
+      font-size: 27px; font-weight: 800; color: #eaddf0; line-height: 1.45;
+    }
+    .bottom-quote strong { color: #ffffff; font-weight: 1000; }
+
+    /* Decorative elements */
+    .deco-circle {
+      position: absolute; z-index: 1;
+      border-radius: 50%; opacity: 0.08;
+      pointer-events: none;
+    }
+    .deco-circle.c1 { width: 320px; height: 320px; right: -80px; top: 380px; background: var(--orange); filter: blur(60px); }
+    .deco-circle.c2 { width: 240px; height: 240px; left: -60px; bottom: 220px; background: var(--red); filter: blur(50px); }
+  </style>
+</head>
+<body>
+  <main class="poster" aria-label="痛点页">
+    <div class="topbar">
+      <div class="eyebrow"><span class="logo-mark"></span>Promptuary</div>
+      <div class="page-tag">02/06</div>
+    </div>
+
+    <h1 class="headline">
+      <span class="line">让 AI 改文档</span>
+      <span class="line"><span class="highlight">最烦的不是 AI</span></span>
+    </h1>
+
+    <p class="muted-line">而是你要重新解释：哪里要改、为什么改、怎么改</p>
+
+    <section class="split-area">
+      <!-- 左：文档 -->
+      <article class="doc-card">
+        <div class="doc-header">
+          <span class="doc-dot red"></span><span class="doc-dot yellow"></span><span class="doc-dot green"></span>
+          <span style="margin-left:auto">产品需求文档.md</span>
+        </div>
+        <div class="doc-body">
+          <p>系统支持<span class="circle-mark">多端同步</span>能力，用户可以在不同设备间无缝切换。</p>
+          <p>核心功能包括：<span class="strike-text">实时编辑和协作功能</span>，以及自动保存机制。</p>
+          <p>在数据传输过程中<span class="question-mark">?</span>需要考虑加密方式。</p>
+          <p>整体架构采用微服务设计<span class="question-mark">?</span>保证可扩展性。</p>
+        </div>
+        <div class="doc-footer">
+          <span>边读边发现问题…</span>
+          <span>L.12–L.67</span>
+        </div>
+      </article>
+
+      <!-- 右：麻烦步骤 -->
+      <div class="trouble-stack">
+        <div class="trouble-card">
+          <span class="trouble-num">1</span>
+          <div class="trouble-title">复制原文</div>
+          <div class="trouble-desc">把要改的段落从文档里一段段复制出来</div>
+        </div>
+        <div class="trouble-card">
+          <span class="trouble-num">2</span>
+          <div class="trouble-title">补上下文</div>
+          <div class="trouble-desc">AI 不知道上下文，你得手动补充前后文背景</div>
+        </div>
+        <div class="trouble-card">
+          <span class="trouble-num">3</span>
+          <div class="trouble-title">整理修改意见</div>
+          <div class="trouble-desc">散落的想法要重新组织成结构化的 Prompt</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector-arrow">→</div>
+
+    <blockquote class="bottom-quote">
+      读的时候想得很清楚，<br>交给 AI 时又要<strong>重讲一遍</strong>
+    </blockquote>
+
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+    <div class="grain"></div>
+  </main>
+</body>
+</html>

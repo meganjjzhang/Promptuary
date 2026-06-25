@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 5 页 - Diff 确认</title>
+  <style>
+    :root {
+      --bg: #1f1e2d; --surface: #282738; --surface-2: #302d45; --surface-3: #242333;
+      --border: #3c3a51; --border-soft: rgba(185,171,255,.16);
+      --text: #f8f7ff; --muted: #9693ad; --dim: #68657e;
+      --purple: #a98bff; --purple-bright: #b89cff; --purple-deep: #4c3b71;
+      --blue: #4f72ff; --cyan: #20e8e3; --orange: #ea845d; --green: #89e6a7; --red: #ee7a83;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #11111b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+    }
+
+    .poster {
+      position: relative; width: 1024px; height: 1440px; overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(79,114,255,0.1), transparent 32%),
+        radial-gradient(circle at 22% 62%, rgba(137,230,167,0.06), transparent 28%),
+        radial-gradient(circle at 78% 62%, rgba(238,122,131,0.06), transparent 28%),
+        linear-gradient(180deg, #202030 0%, #1e1d2b 58%, #1a1a27 100%);
+      isolation: isolate;
+    }
+    .poster::before {
+      content:"";position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px,transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 78%);
+      pointer-events:none;
+    }
+    .grain {
+      position:absolute;inset:0;opacity:.16;
+      background-image: radial-gradient(rgba(255,255,255,0.28) 0.6px,transparent 0.6px);
+      background-size: 8px 8px;pointer-events:none;mix-blend-mode:soft-light;z-index:2;
+    }
+
+    .topbar { position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:58px 54px 0; }
+    .eyebrow { display:inline-flex;align-items:center;gap:14px;padding:13px 18px;border:1px solid rgba(169,139,255,.34);border-radius:999px;background:rgba(45,42,64,.72);color:#d9d0ff;font-size:22px;font-weight:800;line-height:1; }
+    .logo-mark { width:25px;height:25px;border-radius:8px;background:linear-gradient(135deg,#9a7bff,#5874ff);position:relative;box-shadow:0 0 22px rgba(154,123,255,.42); }
+    .logo-mark::before{ content:"";position:absolute;width:10px;height:10px;border:4px solid #eef0ff;border-left:0;border-bottom:0;transform:rotate(45deg);left:6px;top:5px;border-radius:2px; }
+    .page-tag { padding:12px 20px;border-radius:999px;background:rgba(169,139,255,.16);border:1px solid rgba(169,139,255,.28);color:#dfd7ff;font-size:23px;font-weight:900; }
+
+    .headline { position:relative;z-index:3;margin:60px 48px 0;font-weight:1000;line-height:1.14;font-size:68px;letter-spacing:-1px; }
+    .headline .line { display:block;white-space:nowrap; }
+    .headline .hl-green { color:var(--green); text-shadow:0 0 24px rgba(137,230,167,.18); }
+    .sub-head { position:relative;z-index:3;margin:22px 54px 0;font-size:26px;font-weight:700;color:var(--muted);line-height:1.5; }
+
+    /* Diff panel — main focus */
+    .diff-main {
+      position: relative; z-index: 3;
+      margin-top: 44px; padding: 0 48px;
+    }
+
+    .diff-panel {
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(39, 38, 55, 0.92);
+      border: 1px solid rgba(160, 154, 193, 0.16);
+      box-shadow: 0 28px 64px rgba(0, 0, 0, 0.34);
+    }
+
+    .diff-header {
+      height: 64px; display: flex; align-items: center; gap: 14px; padding: 0 22px;
+      border-bottom: 1px solid rgba(160, 154, 193, 0.12);
+      background: rgba(34, 33, 49, 0.85);
+    }
+
+    .compare-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(79, 114, 255, 0.16); border: 1px solid rgba(79, 114, 255, 0.26); position: relative;
+    }
+    .compare-icon::before, .compare-icon::after {
+      content: ""; position: absolute; left: 8px; width: 13px; height: 7px; border: 2px solid #8eb0ff; border-radius: 4px;
+    }
+    .compare-icon::before { top: 6px; border-right: 0; }
+    .compare-icon::after { bottom: 6px; border-left: 0; }
+
+    .diff-title { color: #dbd9ee; font-size: 20px; font-weight: 900; line-height: 1.2; }
+    .diff-subtitle { color: rgba(150,147,173,.7); font-family:"SFMono-Regular",Consolas,monospace; font-size: 12px; font-weight:700; }
+
+    .hunk { margin: 18px; border: 1px solid rgba(160,154,193,.12); border-radius: 10px; overflow: hidden; }
+    .hunk-head { height: 40px; display: flex; align-items: center; padding: 0 14px; gap: 10px; background: rgba(30,29,43,.84); color: rgba(150,147,173,.8); font-family:"SFMono-Regular",Consolas,monospace; font-size: 12px; font-weight: 800; }
+    .line { display: flex; align-items: center; min-height: 33px; padding: 0 14px; font-family:"SFMono-Regular",Consolas,monospace; font-size: 14px; font-weight: 700; color: rgba(205,202,226,.58); white-space: nowrap; }
+    .line .num { flex: 0 0 34px; color: rgba(150,147,173,.34); text-align: right; margin-right: 14px; }
+    .line.del { color: rgba(255,186,191,.72); background: rgba(238,122,131,.09); border-left: 3px solid rgba(238,122,131,.48); }
+    .line.add { color: rgba(185,248,205,.74); background: rgba(137,230,167,.08); border-left: 3px solid rgba(137,230,167,.46); }
+
+    .diff-actions {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 20px 22px;
+      border-top: 1px solid rgba(160, 154, 193, 0.12);
+      background: rgba(30, 29, 43, 0.94);
+    }
+
+    .action-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 16px 18px; border-radius: 12px;
+      font-size: 18px; font-weight: 900; cursor: default;
+    }
+    .action-btn.accept-all { background: rgba(137,230,167,.12); border: 1px solid rgba(137,230,167,.28); color: #89e6a7; }
+    .action-btn.accept-chunk { background: rgba(79,114,255,.12); border: 1px solid rgba(79,114,255,.28); color: #8eb0ff; }
+    .action-btn.rollback { background: rgba(238,122,131,.1); border: 1px solid rgba(238,122,131,.26); color: #ee7a83; }
+
+    /* Legend row below diff */
+    .legend-row {
+      display: flex; align-items: center; justify-content: center; gap: 36px;
+      margin-top: 22px; padding: 0 20px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: var(--muted); }
+    .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .legend-dot.red { background: rgba(238,122,131,.5); border: 1px solid rgba(238,122,131,.5); }
+    .legend-dot.green { background: rgba(137,230,167,.5); border: 1px solid rgba(137,230,167,.5); }
+
+    /* Bottom message */
+    .bottom-msg {
+      position: relative; z-index: 3;
+      margin: 44px 54px 0; text-align: center;
+      padding: 28px 36px; border-radius: 16px;
+      background: rgba(79, 114, 255, 0.06); border: 1px solid rgba(79, 114, 255, 0.14);
+    }
+    .bottom-msg p { font-size: 26px; font-weight: 800; color: #cbc8df; line-height: 1.5; margin: 0; }
+    .bottom-msg strong { color: var(--purple-bright); font-weight: 1000; }
+  </style>
+</head>
+<body>
+  <main class="poster" aria-label="Diff 确认页">
+    <div class="topbar">
+      <div class="eyebrow"><span class="logo-mark"></span>Promptuary</div>
+      <div class="page-tag">05/06</div>
+    </div>
+
+    <h1 class="headline">
+      <span class="line">AI 改完后</span>
+      <span class="line"><span class="hl-green">还能逐块确认</span></span>
+    </h1>
+
+    <p class="sub-head">不是盲目覆盖原文，而是先看 Diff 再决定</p>
+
+    <section class="diff-main">
+      <aside class="diff-panel" aria-label="Diff Preview">
+        <div class="diff-header">
+          <div class="compare-icon"></div>
+          <div>
+            <div class="diff-title">Diff Preview</div>
+            <div class="diff-subtitle">Product Spec.md — 4 changes by Claude Code</div>
+          </div>
+        </div>
+
+        <div class="hunk">
+          <div class="hunk-head">@@ -18,4 +18,6 @@ 补充实际案例</div>
+          <div class="line"><span class="num">16</span><span>// 原有逻辑保持不变</span></div>
+          <div class="line del"><span class="num">18</span><span>- 表达比较模糊，需要优化措辞</span></div>
+          <div class="line add"><span class="num">18</span><span>+ 表达比较模糊，增加「用户注册流程」作为实际案例</span></div>
+          <div class="line add"><span class="num">19</span><span>+ 案例：新用户首次登录时的完整链路演示</span></div>
+          <div class="line"><span class="num">20</span><span>// 后续章节引用此案例进行展开说明</span></div>
+        </div>
+
+        <div class="hunk">
+          <div class="hunk-head">@@ -42,2 +44,4 @@ 统一术语</div>
+          <div class="line del"><span class="num">42</span><span>- "Agent" 和 "智能体" 混用</span></div>
+          <div class="line add"><span class="num">44</span><span>+ 全文统一使用 "Agent" 作为标准术语</span></div>
+          <div class="line add"><span class="num">45</span><span>+ 在术语表（附录 A）中添加 "Agent ≡ AI 执行引擎" 的映射</span></div>
+        </div>
+
+        <div class="hunk">
+          <div class="hunk-head">@@ -78,1 +81,3 @@ 补全原因说明</div>
+          <div class="line del"><span class="num">78</span><span>- 结论缺少上下文支撑</span></div>
+          <div class="line add"><span class="num">81</span><span>+ 结论缺少上下文支撑——建议补充「基于 Q3 数据」的前置条件说明</span></div>
+          <div class="line add"><span class="num">82</span><span>+ 引用 3.2 节的性能对比数据作为依据来源</span></div>
+        </div>
+
+        <div class="diff-actions">
+          <div class="action-btn accept-all">✓ Accept All</div>
+          <div class="action-btn accept-chunk">◇ Accept by Chunk</div>
+          <div class="action-btn rollback">↺ Rollback</div>
+        </div>
+      </aside>
+
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-dot red"></span>删除内容</div>
+        <div class="legend-item"><span class="legend-dot green"></span>新增内容</div>
+        <div class="legend-item" style="color:var(--purple-bright)">逐块确认，不满意可回滚</div>
+      </div>
+    </section>
+
+    <div class="bottom-msg">
+      <p>每块改动都由你决定<br><strong>不是 AI 说了算</strong></p>
+    </div>
+
+    <div class="grain"></div>
+  </main>
+</body>
+</html>
